@@ -1,0 +1,336 @@
+/* ============================================================
+   BẢNG MÀU DÙNG CHUNG — CHẾ ĐỘ TỐI (nguồn chuẩn duy nhất)
+   ============================================================
+   File này là nơi DUY NHẤT khai báo các tông màu nền/viền/chữ/accent
+   cốt lõi cho chế độ Tối của toàn bộ app (tất cả module + Bảng Điều
+   Khiển). Lấy theo đúng bảng màu Module 8 (Dữ liệu tổng hợp) — đen/
+   trắng thuần túy.
+
+   MUỐN ĐỔI TÔNG MÀU CHUNG SAU NÀY: chỉ cần sửa 11 dòng --theme-* bên
+   dưới, không cần sửa từng file css của từng module.
+
+   CÁCH DÙNG trong css riêng của mỗi module: thay vì khai báo hex trực
+   tiếp, biến của module trỏ về biến chung tương ứng, ví dụ:
+     --bg: var(--theme-bg);
+     --surface: var(--theme-panel);
+   Mỗi module vẫn giữ nguyên TÊN biến và toàn bộ rule của nó — chỉ nơi
+   gán giá trị là đổi từ hex sang var(--theme-...). Nhờ vậy đổi 1 chỗ ở
+   đây là đổi màu đồng loạt mọi nơi.
+
+   File này cần được load (link) TRƯỚC css riêng của từng module trong
+   mỗi trang .html, để --theme-* có sẵn khi css module tham chiếu tới.
+
+   LƯU Ý: file này chỉ gom phần màu CỐT LÕI dùng chung (nền/viền/chữ/
+   accent) của chế độ Tối. Theme Sáng "Phiếu Kho" và các màu trạng thái
+   riêng của từng module (warn/danger/ok, màu icon Cài Đặt...) vẫn khai
+   báo trong từng file css module như cũ — không đổi ở bước này.
+   ============================================================ */
+:root{
+  /* Theme "Băng" (PC 8.86): xanh than kho lạnh + accent xanh băng. */
+  --theme-bg: #0E1519;            /* nền gốc */
+  --theme-panel: #162027;         /* panel/surface cấp 1 */
+  --theme-panel-2: #1C2B34;       /* panel/hover cấp 2 */
+  --theme-border: #26353F;        /* viền thường */
+  --theme-border-strong: #3A4D58; /* viền đậm/nổi bật hơn */
+  --theme-text: #E6EEF2;          /* chữ chính */
+  --theme-text-dim: #93A7B2;      /* chữ mờ */
+  --theme-text-faint: #6F8591;    /* chữ rất mờ */
+  --theme-accent: #4DB3DE;        /* accent chính (viền/nút đang chọn) */
+  --theme-accent-dim: #1B7BA6;    /* accent phụ, ít nổi bật hơn */
+  --theme-accent-glow: rgba(77,179,222,0.14); /* quầng sáng của accent */
+  --theme-wrap-rgb: 14,21,25;     /* nền khung kính bọc ngoài (.app), dạng "r,g,b" cho rgba() */
+}
+
+/* Giao diện SÁNG — cùng tông "Phiếu Kho" với các module. Trước 09/2026 chỉ có bộ màu Tối nên tiêu đề
+   bảng dùng chung (thead th…) và vài khung vẫn nền đen khi đang ở giao diện Sáng. */
+html[data-theme="light"]{
+  --theme-bg: #EDF2F5;
+  --theme-panel: #ffffff;
+  --theme-panel-2: #E4EDF2;
+  --theme-border: #C3D2DA;
+  --theme-border-strong: #c9a74f;
+  --theme-text: #0E2530;
+  --theme-text-dim: #3F5461;
+  --theme-text-faint: #3F5461;
+  --theme-accent: #12607F;
+  --theme-accent-dim:#0E4C66;
+  --theme-accent-glow: rgba(18,96,127,0.12);
+  --theme-wrap-rgb: 255,252,242;
+}
+
+/* ============================================================
+   GIAO DIỆN BẢNG DÙNG CHUNG (BƯỚC 1/3 — đồng bộ CSS bảng)
+   ============================================================
+   Các selector dưới đây (table, thead th, tbody td, .table-wrap,
+   .table-pagination, .col-resizer...) đã DÙNG CHUNG TÊN giống hệt nhau ở mọi
+   module từ trước (không phải do bước này đổi tên) — chỉ khác là mỗi module
+   đang tự khai báo lại y hệt logic này trong file css riêng, dễ bị lệch nhau
+   qua thời gian. File này gom lại thành 1 nguồn duy nhất; mỗi file css module
+   ĐÃ XÓA phần khai báo trùng lặp, chỉ còn giữ lại phần thật sự RIÊNG của module
+   đó (nếu có). Dùng thẳng var(--theme-...) ở đây, không qua biến riêng của
+   từng module, để không phụ thuộc tên biến của module nào.
+   Muốn đổi giao diện bảng cho toàn bộ app sau này: chỉ sửa Ở ĐÂY. */
+
+.table-wrap{
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid var(--theme-border);
+}
+.table-wrap.scroll-fixed{ overflow-y: auto; }
+.table-wrap.scroll-fixed thead th{ position: sticky; top: 0; z-index: 2; }
+/* Cố định (dán) hàng "tìm theo cột" ngay DƯỚI hàng tiêu đề khi cuộn dọc bảng — áp dụng cho MỌI
+   bảng có hàng thứ 2 trong <thead> mang class "col-search-row" (dùng ở hầu hết module: Báo Cáo
+   Tồn, NXT Bột/Sốt, NXT-TNK/TGC, Đối Chiếu Số Liệu, Chứng Từ Xuất Kho, Tổng Hợp). --thead-row-h
+   được ĐO THẬT (không đoán cứng theo px) bởi js/sticky-col-search.js — mỗi module có
+   font/khoảng đệm tiêu đề khác nhau nên không thể dùng chung 1 số cố định; 42px chỉ là giá trị
+   dự phòng cho khoảnh khắc trước khi JS kịp đo xong. */
+thead tr.col-search-row th,
+thead tr.col-search-row td{
+  position: sticky;
+  top: var(--thead-row-h, 42px);
+  z-index: 2;
+}
+
+table{
+  border-collapse: collapse;
+  font-size: 13.5px;
+  border: 1px solid var(--theme-border);
+}
+
+thead th{
+  background: var(--theme-panel);
+  text-align: left;
+  padding: 12px 16px;
+  color: var(--theme-accent);
+  font-weight: 600;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid var(--theme-border);
+  white-space: nowrap;
+  box-sizing: border-box;
+  min-width: 50px;
+}
+
+/* Tiêu đề cột bấm để sắp xếp — bấm trực tiếp vào tiêu đề (.th-toggle), không dùng icon riêng.
+   Trạng thái đang sắp xếp thể hiện bằng màu chữ tiêu đề. */
+thead th .th-sort-wrap{ display: flex; align-items: center; gap: 6px; }
+thead th .th-toggle{ position: relative; flex: 1; min-width: 0; min-height: 20px; cursor: pointer; }
+thead th .th-label{
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+thead th[data-sort-dir] .th-label{ color: var(--theme-accent); }
+
+/* Cột đang có bộ lọc cột đang áp dụng — luôn màu đỏ nổi bật, không đổi theo theme (cảnh báo
+   "đang lọc", cần thấy ngay bất kể tông màu chung là gì). */
+thead th.has-filter{ background: #c0392b !important; }
+thead th.has-filter *{ color: #ffffff !important; }
+thead th.has-filter svg{ stroke: currentColor !important; fill: currentColor !important; }
+
+tbody td{
+  padding: 12px 16px;
+  border: 1px solid var(--theme-border);
+  color: var(--theme-text);
+  vertical-align: top;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+  min-width: 24px;
+}
+tbody tr{ transition: background 0.15s; }
+tbody tr:hover{ background: var(--theme-panel-2); }
+
+/* ============================================================
+   Ô SỐ LIỆU DÙNG CHUNG — canh phải + màu cam accent (đồng bộ toàn app)
+   ============================================================
+   Mọi ô <td> mang class "num" (quy ước sẵn có ở nhiều module) sẽ tự canh phải,
+   dùng chữ số căn cột (tabular-nums) và tô màu accent cam. Gom về đây 1 nguồn
+   để mọi module có màu số liệu GIỐNG HỆT nhau như module "Tồn Kho An An". Module
+   nào đã có rule .num riêng (VD Tồn Kho An An dùng var(--frost) = accent) vẫn ghi
+   đè bình thường vì css module nạp sau file này — màu vẫn là cam accent. */
+tbody td.num{
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--theme-accent);
+}
+tfoot td.num{ text-align: right; color: var(--theme-accent); }
+thead th.num{ text-align: right; }
+
+/* Lưới an toàn: một số module canh phải ô số bằng style inline (không gắn class "num") —
+   bắt luôn các ô đó để tô cùng màu cam accent, giữ số liệu đồng bộ toàn app. Chỉ áp cho ô
+   trong <tbody> (không đụng tiêu đề/nút). Có/không khoảng trắng sau dấu hai chấm đều khớp. */
+tbody td[style*="text-align:right"],
+tbody td[style*="text-align: right"]{
+  color: var(--theme-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.table-pagination{ display:flex; align-items:center; justify-content:center; gap:14px; padding:12px 0 0; }
+.table-pagination-info{ font-family:inherit; font-size:12px; color:var(--theme-text-faint); }
+.table-pagination .btn-sm{ padding:6px 12px; font-size:12px; }
+
+/* ---- Tay kéo dãn cột/dòng kiểu Excel (js/table-resize.js, dùng chung mọi bảng) ---- */
+.col-resizer{ position:absolute; top:0; right:0; bottom:0; width:6px; cursor:col-resize; z-index:6; touch-action:none; }
+.col-resizer:hover{ background:var(--theme-accent); opacity:.55; }
+/* Tay kéo cột "leading": gắn vào <th> KẾ TIẾP (thay vì <th> hiện tại) để né lỗi <th> đứng sau
+   luôn đè lên đường biên chung khi header dùng position:sticky — xem js/table-resize.js. */
+.col-resizer.col-resizer--leading{ left:-3px; right:auto; }
+.row-resizer{ position:absolute; left:0; right:0; bottom:0; height:6px; cursor:row-resize; z-index:6; touch-action:none; }
+.row-resizer:hover{ background:var(--theme-accent); opacity:.55; }
+body.resizing-col, body.resizing-col *{ cursor:col-resize !important; user-select:none !important; }
+body.resizing-row, body.resizing-row *{ cursor:row-resize !important; user-select:none !important; }
+
+/* ---- Ô tìm kiếm cột dùng chung: input + nút lọc checkbox/popup cạnh nhau (dùng chung mọi
+   module — "Đối Chiếu Kho Hàng"/quan-ly-kho làm chuẩn: .col-search-input + .col-filter-btn;
+   "Tồn Kho An An" tái dùng khung này với input riêng của module + .th-filter-btn có sẵn).
+   Chỉ đặt bố cục (flex) ở đây — màu sắc/kích thước input hay nút vẫn do css riêng của
+   từng module quyết định, để không phải sửa lại toàn bộ style hiện có của mỗi module. */
+.col-search-cell{ display:flex; align-items:center; gap:5px; }
+.col-search-cell > input{ flex:1; min-width:0; }
+.col-search-cell > .th-filter-btn,
+.col-search-cell > .col-filter-btn{ flex:0 0 auto; }
+
+/* ============================================================
+   HỘP THOẠI "NGÀY BÁO CÁO" (js/report-date-dialog.js) — dùng chung Module 1 + Module 2
+   ============================================================
+   NỀN ĐẶC (không trong suốt): overlay tối 86% + làm mờ nền, hộp thoại dùng màu đặc.
+   Màu lấy từ các biến --rd-* — mỗi file css module gán --rd-* về biến theme riêng của nó
+   (xem khối ".rd-overlay{...}" cuối ton-kho-an-an.css / ton-kho-gui.css). Nếu module
+   nào chưa map thì rơi về --theme-* (dark) bên dưới. */
+.rd-overlay{
+  position:fixed; inset:0; z-index:2000;
+  display:flex; align-items:center; justify-content:center; padding:16px;
+  background:rgba(5,6,8,0.86);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  animation:rdFade .16s ease-out;
+}
+.rd-dialog{
+  width:100%; max-width:400px; box-sizing:border-box;
+  background:var(--rd-surface, var(--theme-panel));
+  border:1px solid var(--rd-border-strong, var(--theme-border-strong));
+  border-radius:14px; padding:22px 22px 18px;
+  color:var(--rd-text, var(--theme-text));
+  box-shadow:0 30px 80px rgba(0,0,0,.65), 0 0 0 1px rgba(0,0,0,.35);
+  position:relative; overflow:hidden;
+  animation:rdPop .18s cubic-bezier(.2,.8,.3,1);
+}
+.rd-dialog::before{                       /* vạch nhấn ở mép trên */
+  content:''; position:absolute; left:0; right:0; top:0; height:3px;
+  background:linear-gradient(90deg, var(--rd-accent, var(--theme-accent)), var(--rd-accent-2, var(--theme-accent-dim)));
+}
+.rd-head{ display:flex; gap:13px; align-items:flex-start; margin-bottom:18px; }
+.rd-icon{
+  flex:0 0 40px; height:40px; border-radius:11px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--rd-field, var(--theme-panel-2));
+  border:1px solid var(--rd-border, var(--theme-border));
+  color:var(--rd-accent-2, var(--theme-accent-dim));
+}
+.rd-title{ margin:1px 0 4px; font-size:17px; font-weight:700; letter-spacing:.1px; color:var(--rd-text, var(--theme-text)); }
+.rd-sub{ margin:0; font-size:12.5px; line-height:1.5; color:var(--rd-muted, var(--theme-text-dim)); }
+
+.rd-fields{ display:flex; align-items:flex-end; gap:8px; }
+.rd-field{ display:flex; flex-direction:column; gap:6px; width:72px; }
+.rd-field-year{ flex:1; width:auto; }
+.rd-field > span{ font-size:11px; font-weight:600; letter-spacing:.4px; text-transform:uppercase; color:var(--rd-muted, var(--theme-text-dim)); }
+.rd-sep{ padding-bottom:11px; font-size:20px; font-weight:300; color:var(--rd-muted, var(--theme-text-dim)); }
+.rd-input{
+  width:100%; box-sizing:border-box; height:46px;
+  text-align:center; font-size:20px; font-weight:600; font-variant-numeric:tabular-nums; font-family:inherit;
+  color:var(--rd-text, var(--theme-text));
+  background:var(--rd-field, var(--theme-bg));
+  border:1px solid var(--rd-border-strong, var(--theme-border-strong));
+  border-radius:10px; outline:none;
+  transition:border-color .14s, box-shadow .14s;
+  -moz-appearance:textfield; appearance:textfield;
+}
+.rd-input::-webkit-outer-spin-button,
+.rd-input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.rd-input::placeholder{ color:var(--rd-muted, var(--theme-text-faint)); opacity:.5; font-weight:400; }
+.rd-input:focus{
+  border-color:var(--rd-accent-2, var(--theme-accent-dim));
+  box-shadow:0 0 0 3px var(--rd-ring, rgba(201,162,74,.22));
+}
+.rd-input.invalid{ border-color:var(--rd-danger, #ff6b6b); box-shadow:0 0 0 3px rgba(255,107,107,.18); }
+
+.rd-meta{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; font-size:12.5px; color:var(--rd-muted, var(--theme-text-dim)); }
+.rd-preview b{ color:var(--rd-text, var(--theme-text)); font-variant-numeric:tabular-nums; }
+.rd-link{
+  background:none; border:0; padding:2px 0; cursor:pointer; font:inherit; font-weight:600;
+  color:var(--rd-accent-2, var(--theme-accent-dim)); text-decoration:underline; text-underline-offset:3px;
+}
+.rd-link:hover{ filter:brightness(1.2); }
+.rd-error{
+  margin-top:10px; padding:8px 11px; font-size:12.5px; border-radius:8px;
+  color:var(--rd-danger, #ff6b6b); background:rgba(255,107,107,.10); border:1px solid rgba(255,107,107,.35);
+}
+.rd-error[hidden]{ display:none; }
+
+.rd-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid var(--rd-border, var(--theme-border)); }
+.rd-btn{
+  min-width:92px; height:38px; padding:0 18px; box-sizing:border-box; cursor:pointer;
+  font-family:inherit; font-size:13px; font-weight:600; border-radius:9px;
+  color:var(--rd-text, var(--theme-text)); background:transparent;
+  border:1px solid var(--rd-border-strong, var(--theme-border-strong));
+  transition:background .14s, border-color .14s, filter .14s, box-shadow .14s;
+}
+.rd-btn:hover{ background:var(--rd-field, var(--theme-panel-2)); }
+.rd-btn:focus-visible{ outline:2px solid var(--rd-accent-2, var(--theme-accent-dim)); outline-offset:2px; }
+.rd-btn.primary{
+  color:var(--rd-on-accent, #111); border-color:transparent;
+  background:linear-gradient(135deg, var(--rd-accent, var(--theme-accent)), var(--rd-accent-2, var(--theme-accent-dim)));
+}
+.rd-btn.primary:hover{ filter:brightness(1.08); box-shadow:0 6px 18px rgba(0,0,0,.35); }
+
+@keyframes rdFade{ from{opacity:0} to{opacity:1} }
+@keyframes rdPop{ from{opacity:0; transform:translateY(8px) scale(.97)} to{opacity:1; transform:none} }
+@media (prefers-reduced-motion:reduce){ .rd-overlay,.rd-dialog{ animation:none; } }
+
+
+/* ============================================================
+   GIAO DIỆN SÁNG — CHỮ TRÊN NÚT CHÍNH (09/2026)
+   Nút chính các module có nền màu nhấn đậm (xanh ngọc/navy) ở giao diện Sáng, nhưng nhiều file css
+   module để chữ ĐEN (hợp nền accent sáng của giao diện Tối) → chữ đen trên nền đậm, khó đọc.
+   Giao diện Sáng: chữ trắng. Đặt ở file dùng chung để áp cho MỌI module một lần.
+   ============================================================ */
+html[data-theme="light"] .btn.btn-primary,
+html[data-theme="light"] .btn-primary,
+html[data-theme="light"] .dm-btn-primary,
+html[data-theme="light"] .drive-modal-ok,
+html[data-theme="light"] #saveBtn.primary{ color:#ffffff; }
+
+/* ============================================================
+   HIỆU NĂNG POPUP (09/2026): lớp phủ mờ nền (backdrop-filter: blur) phía sau popup bắt trình duyệt làm mờ LẠI cả
+   màn hình mỗi khung hình — trên máy không có card đồ hoạ mạnh, mở popup bị khựng và gõ phím trễ (đo thử: 70 ms
+   → 34 ms mỗi phím khi bỏ làm mờ). Lớp phủ vẫn tối như cũ, chỉ bỏ hiệu ứng mờ. Áp cho MỌI popup của mọi module.
+   ============================================================ */
+.pq-modal-overlay, .drive-modal-overlay, .overlay, .confirm-overlay, .rd-overlay,
+[class*="modal-overlay"], [class*="-overlay"], [class$="overlay"], [class*="modal-backdrop"]{
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+
+/* ============================================================
+   MỘT FONT CHO TOÀN APP (PC 3.1) — người dùng yêu cầu "đồng bộ font text ứng dụng thành 1".
+   Trước: Sora (tiêu đề), Inter (nội dung), Libre Franklin, JetBrains Mono… lẫn lộn giữa các module.
+   Nay mọi chữ dùng Inter (đóng gói sẵn trong css/fonts-local.css, có bộ tiếng Việt). !important để thắng các
+   khai báo font riêng trong css từng module (không phải sửa từng file). Không đụng <svg>.
+   Số trong bảng dùng chữ số đều cột (tabular-nums) cho thẳng hàng.
+   ============================================================ */
+:root{ --kla-font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+html, body, body *:not(svg):not(svg *){ font-family: var(--kla-font) !important; }
+td, th{ font-variant-numeric: tabular-nums; }
+
+/* LOGO + TÊN MODULE dùng chung (PC 3.1) — cho các trang trước đây chưa có logo (Module 7, 8, 9). Cùng kiểu với
+   logo cờ đỏ sao vàng ở các module khác. */
+.kla-brand{ display: flex; align-items: center; gap: 10px; min-width: 0; }
+.kla-brand-mark{ width: 36px; height: 36px; border-radius: 10px; background: #d62828; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(214,40,40,.28); }
+.kla-brand-mark svg{ width: 18px; height: 18px; }
+.kla-brand-name{ font-size: 17px; font-weight: 700; line-height: 1.2; color: var(--theme-text); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; letter-spacing: -.01em; }

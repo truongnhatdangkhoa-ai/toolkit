@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Scan tài liệu + Container 3D</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="stylesheet" href="css/shell.css">
+</head>
+<body>
+<div class="bar" role="tablist">
+  <img class="logo" src="assets/logo-192.png" alt="" width="28" height="28">
+  <h1>Kho Lạnh · Công cụ</h1>
+  <button class="tab" role="tab" id="t-scan" aria-selected="true">Scan tài liệu</button>
+  <button class="tab" role="tab" id="t-c3d" aria-selected="false">Container 3D</button>
+  <span class="sp"></span>
+  <span class="ver" id="ver" title="Phiên bản"></span>
+  <button class="th" id="theme" type="button">Giao diện: Sáng</button>
+</div>
+<div class="stage" id="stage"><div class="load" id="load">Đang tải…</div></div>
+<div class="upd" id="upd" hidden role="status"></div>
+
+<script src="js/update-config.js" charset="utf-8"></script>
+<script src="shared/js/native-bridge.js" charset="utf-8"></script>
+<script src="js/shell.js" charset="utf-8"></script>
+<script src="js/updater.js" charset="utf-8"></script>
+</body>
+</html>

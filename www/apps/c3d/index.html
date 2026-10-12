@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<script src="../../shared/js/native-bridge.js" charset="utf-8"></script>
+<script src="../../shared/js/flags.js" charset="utf-8"></script>
+<script src="js/standalone-bridge.js" charset="utf-8"></script><link rel="stylesheet" href="css/c3d-hide-push.css">
+
+<!-- PC 0.19: CSP — chỉ nạp mã/tài nguyên từ trong app -->
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="../../shared/js/theme-sync.js" charset="utf-8"></script>
+<title>Container Loading 3D — Kho Lạnh</title>
+<link rel="stylesheet" href="../../shared/css/fonts.css">
+<link rel="stylesheet" href="css/theme-dark.css">
+<link rel="stylesheet" href="css/c3d.css">
+<link rel="stylesheet" href="css/theme-light-honey.css">
+<link rel="stylesheet" href="css/c3d-redesign.css">
+<link rel="stylesheet" href="../../shared/css/kl-ds.css"><!-- Kho Lạnh 1.0: hệ thống thiết kế dùng chung — nạp CUỐI -->
+</head>
+<body>
+<!-- MODULE "CONTAINER LOADING 3D" (PC 8.57) — mô phỏng xếp hàng vào container lạnh 20' / 40' bằng Three.js.
+     Lõi thuật toán: js/c3d-engine.js (không DOM, có hàm verify kiểm tra độc lập) · Dựng 3D: js/c3d-view.js · Giao diện + lưu: js/container-3d.js -->
+<div class="c3d-page">
+  <header class="c3d-head">
+    <div class="kla-brand"><div class="kla-brand-mark" aria-hidden="true"><img src="img/inline-50134961.svg" alt=""></div><h1 class="kla-brand-name">Container Loading 3D</h1></div>
+    <div class="c3d-actions">
+      <button type="button" class="c3d-btn pri" id="c3dCalc" title="Tính lại phương án xếp (cũng tự tính khi bạn sửa số liệu)">Tính toán xếp hàng</button>
+      <div class="c3d-grp">
+      <button type="button" class="c3d-btn" id="c3dSave" data-tip="Lưu phương án" title="Lưu container + danh sách hàng + kết quả thành 1 phương án để mở lại sau">Lưu phương án</button>
+      <button type="button" class="c3d-btn" id="c3dOpen" data-tip="Phương án đã lưu">Phương án đã lưu</button>
+      <button type="button" class="c3d-btn" id="c3dExcel" data-tip="Xuất Excel">Xuất Excel</button>
+      <button type="button" class="c3d-btn" id="c3dPng" data-tip="Lưu ảnh 3D">Lưu ảnh 3D</button>
+      <button type="button" class="c3d-btn" id="c3dPush" data-tip="Đẩy lên điện thoại" title="Đẩy các cont đã lưu + phương án đã lưu lên điện thoại (điện thoại xem / mở)">Đẩy lên điện thoại</button>
+      </div>
+    </div>
+  </header>
+  <div class="c3d-main">
+    <aside class="c3d-side" id="c3dSide"></aside>
+    <section class="c3d-stage">
+      <div class="c3d-vp">
+      <div class="c3d-vpm" id="c3dVp">
+        <div class="c3d-top"><div class="c3d-tl" id="c3dViews">
+          <button type="button" class="c3d-chip on" data-view="iso">Tổng thể</button>
+          <button type="button" class="c3d-chip" data-view="top">Từ trên</button>
+          <button type="button" class="c3d-chip" data-view="side">Nhìn ngang</button>
+          <button type="button" class="c3d-chip" data-view="door">Từ cửa</button>
+        </div>
+        <div class="c3d-tr" id="c3dToggles">
+          <span class="c3d-tl-lab">Vách</span>
+          <label class="c3d-tg"><input type="checkbox" data-wall="right"> Phải</label>
+          <label class="c3d-tg"><input type="checkbox" data-wall="left"> Trái</label>
+          <label class="c3d-tg"><input type="checkbox" data-wall="ceil"> Trần</label>
+          <label class="c3d-tg"><input type="checkbox" data-wall="front"> Đầu</label>
+          <span class="c3d-sep"></span>
+          <label class="c3d-tg"><input type="checkbox" data-opt="redline" checked> Red line</label>
+          <label class="c3d-tg"><input type="checkbox" data-opt="dims" checked> Kích thước</label>
+          <label class="c3d-tg"><input type="checkbox" data-opt="glabels"> Nhãn hàng</label>
+          <label class="c3d-tg"><input type="checkbox" data-opt="rowlabels"> Số dãy</label>
+          <label class="c3d-tg"><input type="checkbox" data-opt="usable" checked> Vùng chứa hàng</label>
+        </div></div>
+        <div class="c3d-seq" id="c3dSeq"></div>
+        <div class="c3d-tip" id="c3dTip" hidden></div>
+        <div class="c3d-sel" id="c3dSel" hidden></div>
+      </div>
+      <div class="c3d-layers" id="c3dLayers"></div>
+      </div>
+      <div class="c3d-report" id="c3dReport"></div>
+    </section>
+  </div>
+</div>
+<div class="c3d-modal" id="c3dModal" hidden><div class="c3d-dlg" id="c3dDlg"></div></div>
+<div class="c3d-toast" id="c3dToast" hidden></div>
+<script src="js/vendor/three.min.js" charset="utf-8"></script><!-- three.js r147 (MIT, offline) -->
+<script src="js/vendor/OrbitControls.js" charset="utf-8"></script>
+<script src="js/vendor/xlsx.full.min.js" charset="utf-8"></script>
+<script src="js/c3d-engine.js" charset="utf-8"></script>
+<script src="js/c3d-view.js" charset="utf-8"></script>
+<script src="js/c3d-ui.js" charset="utf-8"></script>
+<script src="js/tip-nhanh.js" charset="utf-8"></script><!-- PC 0.29: chú thích hiện ngay khi rê chuột vào nút biểu tượng -->
+</body>
+</html>

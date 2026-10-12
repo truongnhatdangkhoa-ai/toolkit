@@ -1,0 +1,33 @@
+{
+  "name": "scan-container3d",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kho Lạnh · Scan tài liệu + Container 3D — đóng gói Android bằng Capacitor",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "serve": "node scripts/serve.mjs",
+    "bump": "node scripts/bump-version.mjs",
+    "bump:patch": "node scripts/bump-version.mjs patch",
+    "bump:minor": "node scripts/bump-version.mjs minor",
+    "bump:major": "node scripts/bump-version.mjs major",
+    "ota": "node scripts/build-ota.mjs",
+    "android:setup": "node scripts/setup-android.mjs",
+    "android:debug": "node scripts/setup-android.mjs && cd android && ./gradlew assembleDebug",
+    "android:release": "node scripts/setup-android.mjs && cd android && ./gradlew assembleRelease bundleRelease",
+    "android:open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/filesystem": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "@capgo/capacitor-updater": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0"
+  }
+}

@@ -1,0 +1,8 @@
+
+  html, body{ height: 100%; margin: 0; }
+  body{ background: var(--kl-bg); }
+  .scan-page{ box-sizing: border-box; height: 100%; max-width: 2400px; margin: 0 auto; padding: 14px clamp(12px, 1.6vw, 34px); display: flex; }
+  .scan-page > .sc{ flex: 1; min-height: 0; }
+  .scan-toast{ position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 20; max-width: min(720px, 92vw); padding: 10px 16px;
+    border-radius: var(--kl-r2, 10px); background: var(--kl-text); color: var(--kl-surface); box-shadow: var(--kl-sh3); font-size: 14px; line-height: 1.45; }
+  .scan-toast.bad{ background: var(--kl-red); color: #fff; }

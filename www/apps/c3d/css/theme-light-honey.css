@@ -1,0 +1,120 @@
+/* =====================================================================================================
+   GIAO DIỆN SÁNG — MẪU "MẬT ONG" (PC 8.82, 10/10/2026; thay mẫu "E" xanh dương)
+   -----------------------------------------------------------------------------------------------------
+   Lấy theo mẫu số 5 "Mật ong" trong kho-theme-mau.html, có CHỈNH ĐỂ ĐỦ TƯƠNG PHẢN (WCAG AA ≥ 4.5 cho chữ thường):
+   • Nền trang #EDF2F5 · thẻ/panel #ffffff · menu & thanh điều hướng #E4EDF2 · nền nhạt/hover #E8F0F4 / #DCEEF6.
+   • Chữ chính #0E2530 (≈12–13:1) · chữ phụ #3F5461 (≈6.4–7:1) · chữ mờ #51656F (≥ 5.2:1).
+   • Màu nhấn: mẫu gốc #12607F chỉ đạt 4.3:1 khi làm CHỮ trên nền nhạt #DCEEF6 → dùng #12607F (chữ trắng trên nền
+     này 5.7:1; làm chữ trên nền nhạt ≥ 5.0:1); rê chuột / đậm #0E4C66. Viền #D3DDE3, viền nhấn #9FB4C0.
+   • Thanh điều hướng module: nền #E4EDF2, mục đang mở = thẻ trắng chữ nhấn + gạch chân.
+   • Bảng: tiêu đề nền #F1F5F8 chữ #1F3743 đậm, rê chuột #E8F0F4.
+   • Cột số có màu: Tồn đầu (xám be) · Nhập (xanh lá) · Xuất (đỏ) · Tồn cuối (vàng mật) — lib/theme-sync.js dò
+     tiêu đề cột và gắn data-tint; thân bảng tô nhạt bằng 1 quy tắc nth-child mỗi cột.
+   File này nạp CUỐI CÙNG trên mọi trang và CHỈ có tác dụng khi html[data-theme="light"] — giao diện Tối không đổi.
+   ===================================================================================================== */
+html[data-theme="light"]{
+  /* biến dùng chung (theme-shared.css) */
+  --theme-bg:#EDF2F5; --theme-panel:#ffffff; --theme-panel-2:#E8F0F4;
+  --theme-border:#D3DDE3; --theme-border-strong:#9FB4C0;
+  --theme-text:#0E2530; --theme-text-dim:#3F5461; --theme-text-faint:#51656F;
+  --theme-accent:#12607F; --theme-accent-dim:#0E4C66; --theme-accent-glow:rgba(18,96,127,.12);
+  --theme-wrap-rgb:255,252,242;
+  /* tên biến riêng của các module (ghi đè đủ bộ; module nào không dùng thì vô hại) */
+  --bg:#EDF2F5; --bg-elevated:#E4EDF2; --surface:#ffffff; --surface-hover:#E8F0F4;
+  --panel:#ffffff; --panel-hover:#E8F0F4;
+  --border:#D3DDE3; --border-strong:#9FB4C0; --border-hover:#8AA2B0;
+  --text:#0E2530; --text-muted:#3F5461; --text-faint:#51656F; --muted:#3F5461;
+  --ice:#12607F; --ice-dim:#0E4C66; --ice-glow:rgba(18,96,127,.12);
+  --wrap-rgb:255,252,242; --wrap-border-rgb:59,42,6;
+  /* thanh điều hướng module: nền mật ong nhạt */
+  --side-bg:#E4EDF2; --side-active-bg:#ffffff; --side-text:#0E2530; --side-text-muted:#3F5461;
+  --nav-active-bg:#ffffff; --nav-active-border:#C3D2DA; --nav-active-text:#12607F;
+  /* màu cột số */
+  --tint-dau:#E4EAEE;  --tint-dau-t:#33444E;  --tint-dau-b:rgba(18,96,127,.035);
+  --tint-nhap:#D9F0E3; --tint-nhap-t:#14532d; --tint-nhap-b:rgba(22,163,74,.04);
+  --tint-xuat:#FBDEDB; --tint-xuat-t:#8f1c13; --tint-xuat-b:rgba(220,38,38,.035);
+  --tint-cuoi:#DCEEF6; --tint-cuoi-t:#0E4C66; --tint-cuoi-b:rgba(27,123,166,.10);
+}
+
+/* ---------- thanh điều hướng / thanh trên của module ---------- */
+html[data-theme="light"] .sidebar,
+html[data-theme="light"] .topbar{
+  border-color:#C3D2DA !important;
+  box-shadow:none;
+}
+html[data-theme="light"] .sidebar::before{ opacity:0 !important; }
+html[data-theme="light"] .brand,
+html[data-theme="light"] .sidebar-toggle-row,
+html[data-theme="light"] .sidebar-foot{ border-color:#C3D2DA !important; }
+html[data-theme="light"] .brand-title,
+html[data-theme="light"] .topbar h1,
+html[data-theme="light"] .page-title{ color:#0E2530 !important; font-weight:800; }
+html[data-theme="light"] .brand-sub,
+html[data-theme="light"] .topbar p,
+html[data-theme="light"] .page-crumb{ color:#3F5461 !important; }
+
+html[data-theme="light"] .nav-item,
+html[data-theme="light"] .nav-subitem,
+html[data-theme="light"] .tab-item,
+html[data-theme="light"] .menu-item,
+html[data-theme="light"] .menu-subitem{ color:#3F5461; font-weight:600; }
+html[data-theme="light"] .nav-item:hover,
+html[data-theme="light"] .nav-subitem:hover,
+html[data-theme="light"] .tab-item:hover,
+html[data-theme="light"] .menu-item:hover,
+html[data-theme="light"] .menu-subitem:hover{
+  color:#0E2530; background:rgba(255,255,255,.65); border-color:#C3D2DA;
+}
+html[data-theme="light"] .nav-item.active,
+html[data-theme="light"] .nav-subitem.active,
+html[data-theme="light"] .tab-item.active,
+html[data-theme="light"] .menu-item.active,
+html[data-theme="light"] .menu-subitem.active{
+  color:#12607F !important; background:#ffffff !important; border-color:#C3D2DA !important;
+  box-shadow:0 1px 2px rgba(14,37,48,.08), inset 0 -2px 0 #12607F !important;
+  animation:none !important;
+}
+html[data-theme="light"] .nav-item.active svg,
+html[data-theme="light"] .tab-item.active svg,
+html[data-theme="light"] .menu-item.active svg{ color:#12607F; }
+html[data-theme="light"] .tab-item::before,
+html[data-theme="light"] .nav-item::before{ background-image:none !important; }
+html[data-theme="light"] .nav-sub{ background:#ffffff; border-color:#C3D2DA; }
+html[data-theme="light"] .nav-subitem-num{ color:#3F5461; background:#E4EDF2; }
+html[data-theme="light"] .sidebar-toggle{ color:#3F5461; }
+html[data-theme="light"] .sidebar-toggle:hover{ color:#0E2530 !important; background:rgba(255,255,255,.65) !important; }
+html[data-theme="light"] .sidebar .gauge,
+html[data-theme="light"] .topbar .gauge,
+html[data-theme="light"] .stat-chip,
+html[data-theme="light"] .topbar .search-box{
+  color:#0E2530 !important; background:#ffffff !important; border-color:#C3D2DA !important;
+}
+
+/* ---------- bảng ---------- */
+html[data-theme="light"] thead th{
+  background:#F1F5F8; color:#1F3743; font-weight:700;
+  border-color:#D3DDE3;
+}
+html[data-theme="light"] tbody td{ border-color:#E3EAEE; }
+html[data-theme="light"] tbody tr:hover > td{ background-color:#E8F0F4; }
+html[data-theme="light"] .table-wrap,
+html[data-theme="light"] .table-shell{ border-color:#D3DDE3; background:#ffffff; }
+
+/* cột số có màu — tiêu đề (data-tint do lib/theme-sync.js gắn) */
+html[data-theme="light"] th[data-tint="dau"]{ background:var(--tint-dau) !important; color:var(--tint-dau-t) !important; }
+html[data-theme="light"] th[data-tint="nhap"]{ background:var(--tint-nhap) !important; color:var(--tint-nhap-t) !important; }
+html[data-theme="light"] th[data-tint="xuat"]{ background:var(--tint-xuat) !important; color:var(--tint-xuat-t) !important; }
+html[data-theme="light"] th[data-tint="cuoi"]{ background:var(--tint-cuoi) !important; color:var(--tint-cuoi-t) !important; }
+
+/* ---------- nút chính ---------- */
+html[data-theme="light"] .btn-primary,
+html[data-theme="light"] .btn.primary,
+html[data-theme="light"] .btn.pri,
+html[data-theme="light"] .dc-btn.pri{ background:#12607F; border-color:#12607F; color:#ffffff; }
+html[data-theme="light"] .btn-primary:hover,
+html[data-theme="light"] .btn.primary:hover,
+html[data-theme="light"] .btn.pri:hover,
+html[data-theme="light"] .dc-btn.pri:hover{ background:#0E4C66; border-color:#0E4C66; }
+
+/* chữ xanh nhạt viết thẳng trong JS (cột "nhập" của NXT Bột/Sốt) quá mờ trên nền sáng → nâu mật đậm (≥ 6:1) */
+html[data-theme="light"] td[style*="7FA8F5" i]{ color:#0E4C66 !important; }

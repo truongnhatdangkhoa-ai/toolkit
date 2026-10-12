@@ -1,0 +1,1 @@
+window.KLA_NO_NAV_MEMORY=true;

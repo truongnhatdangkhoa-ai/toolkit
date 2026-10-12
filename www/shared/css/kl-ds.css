@@ -1,0 +1,178 @@
+/* =====================================================================================================
+   KHO LẠNH 1.0 — HỆ THỐNG THIẾT KẾ DÙNG CHUNG (nạp CUỐI CÙNG trên mọi trang)
+   -----------------------------------------------------------------------------------------------------
+   • 1 phông: Be Vietnam Pro (css/fonts-local.css). Số trong bảng / ô nhập thẳng cột (tabular-nums).
+   • Màu lấy từ logo và mang NGHĨA cố định ở mọi màn hình:
+       xanh dương = thao tác chính / thông tin · xanh lá = bình thường, đã xong · vàng = cảnh báo, chờ · đỏ = lệch, lỗi, xoá.
+     Nền / chữ / viền là thang xám lạnh trung tính.
+   • Bo góc theo cấp: 4px nhãn · 6px nút & ô nhập · 10px khung / hộp thoại.
+   • Biến --kl-* là NGUỒN DUY NHẤT. Các tên biến cũ của từng module (--bg, --panel, --theme-*, --nb-*…) được trỏ về đây
+     để css cũ của module tự đổi màu theo, không phải sửa từng file.
+   Muốn đổi màu cả app: chỉ sửa 2 khối :root / html[data-theme="dark"] ngay dưới.
+   ===================================================================================================== */
+:root, html[data-theme="light"]{
+  color-scheme: light;
+  --kl-font: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+  /* nền & chữ */
+  --kl-bg:#F3F5F7; --kl-surface:#FFFFFF; --kl-surface-2:#F7F9FA; --kl-sunken:#ECEFF2;
+  --kl-line:#DDE2E7; --kl-line-strong:#C3CAD2;
+  --kl-text:#18212B; --kl-text-2:#4C5866; --kl-text-3:#677382;
+  /* 4 màu logo */
+  --kl-blue:#2B5E99; --kl-blue-strong:#1F4A7C; --kl-blue-soft:#E6EEF8; --kl-blue-line:#B9CDE6;
+  --kl-green:#2C7A37; --kl-green-base:#4E8F49; --kl-green-soft:#E3F1E3;
+  --kl-gold:#7F5B08; --kl-gold-base:#D9A930; --kl-gold-soft:#FBF0D3;
+  --kl-red:#B0302A; --kl-red-base:#B8332D; --kl-red-soft:#FAE3E1;
+  /* thanh menu trái (tối ở cả 2 giao diện) */
+  --kl-side:#17212B; --kl-side-2:#1F2B37; --kl-side-3:#283749; --kl-side-text:#DCE3EA; --kl-side-muted:#8F9CA9; --kl-side-line:#263240;
+  /* hình khối */
+  --kl-r1:4px; --kl-r2:6px; --kl-r3:10px;
+  --kl-sh1:0 1px 2px rgba(16,24,32,.06); --kl-sh2:0 4px 14px rgba(16,24,32,.08); --kl-sh3:0 18px 48px rgba(16,24,32,.20);
+  --kl-ease:cubic-bezier(.2,.7,.2,1); --kl-fast:.12s; --kl-med:.22s;
+  --kl-focus:0 0 0 3px rgba(43,94,153,.28);
+}
+html[data-theme="dark"]{
+  color-scheme: dark;
+  --kl-bg:#11161B; --kl-surface:#182027; --kl-surface-2:#1C252D; --kl-sunken:#0D1216;
+  --kl-line:#29333D; --kl-line-strong:#3A4651;
+  --kl-text:#E6EBF0; --kl-text-2:#AAB5C0; --kl-text-3:#83909C;
+  --kl-blue:#6FA3DE; --kl-blue-strong:#8DB8EA; --kl-blue-soft:#1B2B3E; --kl-blue-line:#2E4A6C;
+  --kl-green:#72C27E; --kl-green-base:#4E8F49; --kl-green-soft:#162E1B;
+  --kl-gold:#E8C25A; --kl-gold-base:#D9A930; --kl-gold-soft:#33290F;
+  --kl-red:#F08D86; --kl-red-base:#B8332D; --kl-red-soft:#3B1A18;
+  --kl-side:#0E1318; --kl-side-2:#18212A; --kl-side-3:#22303F; --kl-side-text:#DCE3EA; --kl-side-muted:#8592A0; --kl-side-line:#1F2934;
+  --kl-sh1:0 1px 2px rgba(0,0,0,.3); --kl-sh2:0 6px 18px rgba(0,0,0,.35); --kl-sh3:0 20px 56px rgba(0,0,0,.55);
+  --kl-focus:0 0 0 3px rgba(111,163,222,.35);
+}
+
+/* ---------- TÊN BIẾN CŨ của các module → trỏ về --kl-* ---------- */
+:root, html[data-theme="light"], html[data-theme="dark"]{
+  --theme-bg:var(--kl-bg); --theme-panel:var(--kl-surface); --theme-panel-2:var(--kl-surface-2);
+  --theme-border:var(--kl-line); --theme-border-strong:var(--kl-line-strong);
+  --theme-text:var(--kl-text); --theme-text-dim:var(--kl-text-2); --theme-text-faint:var(--kl-text-3);
+  --theme-accent:var(--kl-blue); --theme-accent-dim:var(--kl-blue-strong); --theme-accent-glow:var(--kl-blue-soft);
+  --bg:var(--kl-bg); --bg-grid:var(--kl-bg); --bg-void:var(--kl-bg); --void:var(--kl-bg);
+  --bg-panel:var(--kl-surface); --bg-panel-2:var(--kl-surface-2); --bg-elevated:var(--kl-surface-2);
+  --panel:var(--kl-surface); --panel-hover:var(--kl-surface-2);
+  --surface:var(--kl-surface); --surface-2:var(--kl-surface-2); --surface-2-solid:var(--kl-surface-2); --surface-hover:var(--kl-surface-2);
+  --border:var(--kl-line); --border-soft:var(--kl-line); --border-strong:var(--kl-line-strong); --border-hover:var(--kl-line-strong);
+  --line:var(--kl-line); --line-soft:var(--kl-line);
+  --text:var(--kl-text); --text-main:var(--kl-text); --text-hi:var(--kl-text); --ink:var(--kl-text);
+  --text-mid:var(--kl-text-2); --text-muted:var(--kl-text-2); --muted:var(--kl-text-2); --text-dim:var(--kl-text-2);
+  --text-faint:var(--kl-text-3); --text-low:var(--kl-text-3);
+  --accent:var(--kl-blue); --accent-dim:var(--kl-blue-soft); --ice:var(--kl-blue); --ice-dim:var(--kl-blue-soft);
+  --steel:var(--kl-text-2); --steel-bright:var(--kl-text);
+  --ok:var(--kl-green); --green:var(--kl-green); --warn:var(--kl-gold); --amber:var(--kl-gold); --yellow:var(--kl-gold); --orange:var(--kl-gold);
+  --danger:var(--kl-red); --red:var(--kl-red); --red-bg:var(--kl-red-soft); --t-blue:var(--kl-blue);
+  --st-ok:var(--kl-green); --st-ok-bg:var(--kl-green-soft); --st-warn:var(--kl-gold); --st-warn-bg:var(--kl-gold-soft);
+  --st-bad:var(--kl-red); --st-bad-bg:var(--kl-red-soft); --st-info:var(--kl-blue); --st-info-bg:var(--kl-blue-soft);
+  --nav-active-bg:var(--kl-blue-soft); --nav-active-text:var(--kl-blue); --nav-active-border:var(--kl-blue);
+  --side-bg:var(--kl-surface); --side-text:var(--kl-text); --side-text-muted:var(--kl-text-2); --side-active-bg:var(--kl-blue-soft);
+  --wrap-bg:var(--kl-bg); --wrap-glow-1:transparent; --wrap-glow-2:transparent; --wrap-texture:none; --wrap-border:var(--kl-line);
+  --track:var(--kl-sunken);
+  --r-sm:var(--kl-r1); --r-md:var(--kl-r2); --r-lg:var(--kl-r3); --radius:var(--kl-r3);
+  --shadow:var(--kl-sh2); --shadow-1:var(--kl-sh1); --shadow-2:var(--kl-sh2); --shadow-3:var(--kl-sh3);
+  --fast:var(--kl-fast); --med:var(--kl-med); --ease:var(--kl-ease);
+  --body:var(--kl-font); --display:var(--kl-font);
+  --mono:var(--kl-blue); --mono-2:var(--kl-blue-line); /* --mono là MÀU nhấn (từ bản 8.86), không phải phông */
+  /* nút dùng chung (css/nut-dong-bo.css) */
+  --nb-primary:var(--kl-blue); --nb-primary-hover:var(--kl-blue-strong); --nb-on-primary:#fff;
+  --nb-sec-bg:var(--kl-surface); --nb-sec-border:var(--kl-line-strong); --nb-sec-text:var(--kl-text);
+  --nb-sec-hover-bg:var(--kl-blue-soft); --nb-sec-hover-border:var(--kl-blue); --nb-sec-hover-text:var(--kl-blue);
+  --nb-danger-border:var(--kl-red-soft); --nb-danger-text:var(--kl-red);
+  --nb-danger-hover-bg:var(--kl-red-soft); --nb-danger-hover-border:var(--kl-red); --nb-danger-hover-text:var(--kl-red);
+  --nb-ok:var(--kl-green); --nb-ok-hover:var(--kl-green); --nb-radius:var(--kl-r2);
+}
+html[data-theme="light"]{ --theme-wrap-rgb:255,255,255; --wrap-rgb:255,255,255; --wrap-border-rgb:221,226,231; }
+html[data-theme="dark"]{ --theme-wrap-rgb:24,32,39; --wrap-rgb:24,32,39; --wrap-border-rgb:41,51,61; --nb-on-primary:#0E1620; }
+
+/* ---------- NỀN TẢNG ---------- */
+html, body{ font-family:var(--kl-font) !important; }
+body{ background:var(--kl-bg); color:var(--kl-text); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+button, input, select, textarea{ font-family:inherit; }
+::selection{ background:var(--kl-blue-soft); color:var(--kl-text); }
+:focus-visible{ outline:2px solid var(--kl-blue) !important; outline-offset:2px; }
+table td, table th, input[type="number"], .num, .r{ font-variant-numeric:tabular-nums; }
+*{ scrollbar-width:thin; scrollbar-color:var(--kl-line-strong) transparent; }
+::-webkit-scrollbar{ width:10px; height:10px; } ::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{ background:var(--kl-line-strong); border-radius:6px; border:2px solid transparent; background-clip:content-box; }
+::-webkit-scrollbar-thumb:hover{ background:var(--kl-text-3); background-clip:content-box; }
+@media (prefers-reduced-motion: reduce){ *, *::before, *::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; } }
+
+/* Logo trong đầu trang từng module (thay cờ cũ) */
+.vn-flag-logo, .brand-mark, .kla-brand-mark, .brand-flag{ background:none !important; border:0 !important; box-shadow:none !important; border-radius:0 !important; padding:0 !important; display:inline-flex; align-items:center; justify-content:center; }
+.vn-flag-logo img, .brand-mark img, .kla-brand-mark img, .brand-flag img{ width:100%; height:100%; object-fit:contain; display:block; }
+.vn-flag-logo::before, .vn-flag-logo::after, .brand-mark::before, .brand-mark::after, .kla-brand-mark::before, .kla-brand-mark::after{ content:none !important; }
+
+/* ---------- BẢNG DỮ LIỆU ---------- */
+.table-wrap{ border-radius:var(--kl-r3); border-color:var(--kl-line); background:var(--kl-surface); }
+table{ border-color:var(--kl-line); }
+thead th{
+  background:var(--kl-surface-2) !important; color:var(--kl-text-2) !important;
+  text-transform:none !important; letter-spacing:0 !important;
+  font-weight:600; font-size:12.5px; border-color:var(--kl-line) !important;
+}
+tbody td{ border-color:var(--kl-line); }
+tbody tr:hover > td{ background-color:color-mix(in srgb, var(--kl-blue-soft) 70%, transparent); }
+tfoot td, tfoot th, tr.total > td, tr.tong > td{ font-weight:700; background:var(--kl-surface-2); }
+
+/* ---------- NÚT ---------- */
+:is(.btn, .lx-btn, .c3d-btn, .pnx-btn, .dc-btn, .dcx-btn, .dm-btn, .sl-btn, .tk-btn, .px-btn, .px-modal-btn, .dt-btn, .ld-btn, .gs-btn, .up-btn, .cal-btn){
+  border-radius:var(--kl-r2) !important; font-family:inherit !important; font-weight:600;
+  transition:background-color var(--kl-fast) var(--kl-ease), border-color var(--kl-fast) var(--kl-ease), color var(--kl-fast) var(--kl-ease);
+}
+:is(.btn-primary, .btn-accent, .dcx-btn-primary, button.primary, button.pri, a.pri, .lx-btn.pri, .gs-btn.pri, .c3d-btn.pri, .pnx-btn.pri, .dc-btn.pri){
+  background:var(--kl-blue) !important; border-color:var(--kl-blue) !important; color:var(--nb-on-primary) !important;
+}
+:is(.btn-primary, .btn-accent, .dcx-btn-primary, button.primary, button.pri, a.pri, .lx-btn.pri, .gs-btn.pri, .c3d-btn.pri, .pnx-btn.pri, .dc-btn.pri):hover:not(:disabled){
+  background:var(--kl-blue-strong) !important; border-color:var(--kl-blue-strong) !important;
+}
+:is(.btn-danger, button.danger, .dt-btn.danger, .btn.danger){ color:var(--kl-red) !important; border-color:color-mix(in srgb, var(--kl-red) 35%, transparent) !important; background:var(--kl-surface) !important; }
+:is(.btn-danger, button.danger, .dt-btn.danger, .btn.danger):hover:not(:disabled){ background:var(--kl-red-soft) !important; border-color:var(--kl-red) !important; }
+button:disabled, .btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+/* ---------- Ô NHẬP ---------- */
+:is(input[type="text"], input[type="search"], input[type="number"], input[type="password"], input[type="date"], input[type="month"], input[type="email"], input:not([type]), select, textarea){
+  border-color:var(--kl-line-strong); border-radius:var(--kl-r2);
+  background-color:var(--kl-surface); color:var(--kl-text);
+}
+:is(input[type="text"], input[type="search"], input[type="number"], input[type="password"], input[type="date"], input[type="month"], input[type="email"], input:not([type]), select, textarea):focus{
+  border-color:var(--kl-blue) !important; box-shadow:var(--kl-focus) !important; outline:none;
+}
+::placeholder{ color:var(--kl-text-3); opacity:1; }
+input[type="checkbox"], input[type="radio"]{ accent-color:var(--kl-blue); }
+
+/* ---------- MENU NGANG TRONG MODULE (thanh tab trên cùng mỗi trang) ---------- */
+.sidebar{ background:var(--kl-surface) !important; border-color:var(--kl-line) !important; box-shadow:none !important; }
+.sidebar :is(.nav-item, .tab-btn, .menu-item){ color:var(--kl-text-2); border-radius:var(--kl-r2) !important; }
+.sidebar :is(.nav-item, .tab-btn, .menu-item):hover{ background:var(--kl-surface-2) !important; color:var(--kl-text); }
+.sidebar :is(.nav-item, .tab-btn, .menu-item):is(.active, .on, [aria-selected="true"]){
+  background:var(--kl-blue-soft) !important; color:var(--kl-blue) !important; box-shadow:inset 0 -2px 0 var(--kl-blue) !important; border-color:transparent !important;
+}
+
+/* ---------- HỘP THOẠI, THẺ, NHÃN TRẠNG THÁI ---------- */
+:is(.modal, .modal-content, .modal-box, .px-modal, .lx-dlg, .dlg, .dialog)[role="dialog"], :is(.modal-content, .modal-box, .lx-dlg){
+  border-radius:var(--kl-r3) !important; box-shadow:var(--kl-sh3) !important; border-color:var(--kl-line) !important;
+}
+.st{ display:inline-flex; align-items:center; gap:6px; padding:2px 9px; border-radius:var(--kl-r1); font-size:12.5px; font-weight:600; white-space:nowrap; }
+.st.ok{ background:var(--kl-green-soft); color:var(--kl-green); } .st.warn{ background:var(--kl-gold-soft); color:var(--kl-gold); }
+.st.bad{ background:var(--kl-red-soft); color:var(--kl-red); } .st.info{ background:var(--kl-blue-soft); color:var(--kl-blue); }
+
+/* ---------- PANEL CHI TIẾT DÒNG (js/chi-tiet-dong.js) ---------- */
+#ctdPanel{ position:fixed; top:0; right:0; bottom:0; width:360px; max-width:92vw; z-index:9000; display:flex; flex-direction:column; gap:10px; padding:18px;
+  background:var(--kl-surface); color:var(--kl-text); border-left:1px solid var(--kl-line); box-shadow:var(--kl-sh3); overflow-y:auto; font-size:13.5px; }
+#ctdPanel[hidden]{ display:none; }
+#ctdPanel .ctd-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; } #ctdPanel .ctd-h b{ font-size:16px; overflow-wrap:anywhere; }
+#ctdPanel button{ min-height:34px; padding:6px 12px; border-radius:var(--kl-r2); border:1px solid var(--kl-line-strong); background:var(--kl-surface); color:var(--kl-text); font:600 13px var(--kl-font); cursor:pointer; }
+#ctdPanel button:hover{ background:var(--kl-blue-soft); border-color:var(--kl-blue); color:var(--kl-blue); }
+#ctdPanel #ctdClose{ min-width:34px; font-size:20px; line-height:1; }
+#ctdPanel .ctd-st{ display:flex; flex-wrap:wrap; gap:6px; } #ctdPanel .ctd-st:empty{ display:none; }
+#ctdPanel .ctd-l{ margin:0; display:grid; } #ctdPanel .ctd-l > div{ display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-top:1px solid var(--kl-line); }
+#ctdPanel dt{ color:var(--kl-text-2); flex:0 0 42%; } #ctdPanel dd{ margin:0; text-align:right; font-weight:600; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+#ctdPanel .ctd-f{ display:flex; flex-wrap:wrap; gap:8px; margin-top:auto; }
+tr.ctd-row > td{ background:var(--kl-blue-soft) !important; }
+
+/* Trang module trong khung: bỏ khối logo + tên trang (thanh trên của khung đã hiện đường dẫn + mã module) */
+html.kl-embedded :is(.sidebar, .topbar, .top-nav, header, nav) > :is(.brand, .kla-brand){ display:none !important; }
+
+/* Bỏ dòng bản quyền mờ cố định ở góc phải dưới của các trang module (đã có ở Cài đặt › Giới thiệu) */
+body > footer:not(.kl-keep){ display:none !important; }

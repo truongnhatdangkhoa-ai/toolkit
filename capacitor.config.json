@@ -1,0 +1,15 @@
+{
+  "appId": "com.kholanh.scancontainer3d",
+  "appName": "Scan & Container 3D",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "CapacitorUpdater": {
+      "autoUpdate": false,
+      "appReadyTimeout": 15000,
+      "resetWhenUpdate": true
+    }
+  }
+}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<script src="../../shared/js/native-bridge.js" charset="utf-8"></script>
+<script src="../../shared/js/flags.js" charset="utf-8"></script>
+
+<!-- PC 0.19: CSP — chỉ nạp mã/tài nguyên từ trong app -->
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="../../shared/js/theme-sync.js" charset="utf-8"></script>
+<title>Scan tài liệu — Kho Lạnh</title>
+<link rel="stylesheet" href="../../shared/css/fonts.css">
+<link rel="stylesheet" href="css/scan.css">
+<link rel="stylesheet" href="../../shared/css/kl-ds.css"><!-- hệ thống thiết kế dùng chung — nạp CUỐI -->
+<link rel="stylesheet" href="css/scan-page.css">
+</head>
+<body>
+<!-- MODULE M15 "SCAN TÀI LIỆU" (PC 0.22) — chụp / chọn ảnh hoặc PDF, tự cắt trang + khử bóng + làm trắng nền, xuất PDF.
+     Lõi: js/scan-core.js · Giao diện: js/scan-ui.js · css/scan.css — 3 file này DÙNG CHUNG với điện thoại (ban-dien-thoai/www/).
+     Không có database Excel: nút "Lưu" cất tài liệu vào bộ nhớ app (IndexedDB kl_scan_luu) + tự lưu nháp trang đang làm (PC 0.27); "Xuất PDF" mới ghi file ra nơi người dùng chọn. -->
+<main class="scan-page"><div id="scanRoot"></div></main>
+<div class="scan-toast" id="scanToast" role="status" hidden></div>
+<script src="js/vendor/pdf.min.js" charset="utf-8"></script><script src="js/vendor/jspdf.umd.min.js" charset="utf-8"></script><script src="js/vendor/jszip.min.js" charset="utf-8"></script><script src="js/vendor/pdf.worker.min.js" charset="utf-8"></script><script src="js/pdf-loader.js" charset="utf-8"></script>
+<script src="js/scan-core.js" charset="utf-8"></script>
+<script src="js/scan-ui.js" charset="utf-8"></script>
+<script src="js/scan-main.js" charset="utf-8"></script>
+</body>
+</html>
