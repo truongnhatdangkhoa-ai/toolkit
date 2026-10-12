@@ -1,0 +1,154 @@
+name: Phát hành Android (APK + AAB + OTA)
+
+# Chạy tay: GitHub → tab Actions → "Phát hành Android" → Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Tăng phiên bản'
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+      native_changes:
+        description: 'Có đổi phần native (icon, quyền, plugin)? Nếu có, bản cài cũ phải cài lại APK/AAB'
+        type: boolean
+        default: false
+      build_android:
+        description: 'Build APK + AAB (bỏ chọn = chỉ phát hành bản cập nhật OTA, nhanh)'
+        type: boolean
+        default: true
+      notes:
+        description: 'Ghi chú phiên bản (hiện cho người dùng khi cập nhật)'
+        type: string
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      KLA_KEYSTORE_B64: ${{ secrets.KLA_KEYSTORE_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Tăng phiên bản
+        id: ver
+        env:
+          BUMP: ${{ inputs.bump }}
+          NATIVE: ${{ inputs.native_changes }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          ARGS="$BUMP"
+          if [ "$NATIVE" = "true" ]; then ARGS="$ARGS --native"; fi
+          if [ -n "$NOTES" ]; then node scripts/bump-version.mjs $ARGS --notes "$NOTES"; else node scripts/bump-version.mjs $ARGS; fi
+          echo "VERSION=$(node -p "require('./version.json').version")" >> "$GITHUB_ENV"
+          echo "VCODE=$(node -p "require('./version.json').versionCode")" >> "$GITHUB_ENV"
+
+      - name: Lưu phiên bản mới vào repo + gắn tag
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add version.json package.json www/version.json
+          git commit -m "chore(release): v${VERSION} (versionCode ${VCODE})"
+          git tag "v${VERSION}"
+          git push origin "HEAD:${GITHUB_REF_NAME}" "v${VERSION}"
+
+      - name: Điền địa chỉ repo cho bộ cập nhật OTA
+        run: sed -i "s#__GITHUB_REPOSITORY__#${GITHUB_REPOSITORY}#g" www/js/update-config.js
+
+      - name: Đóng gói bản cập nhật OTA
+        run: node scripts/build-ota.mjs
+
+      - uses: actions/setup-java@v4
+        if: ${{ inputs.build_android }}
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+        if: ${{ inputs.build_android }}
+        with:
+          packages: 'platforms;android-36 build-tools;36.0.0'
+
+      - uses: gradle/actions/setup-gradle@v4
+        if: ${{ inputs.build_android }}
+
+      - name: Cài thư viện
+        if: ${{ inputs.build_android }}
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Dựng dự án Android (icon, logo, version, quyền)
+        if: ${{ inputs.build_android }}
+        run: node scripts/setup-android.mjs
+
+      - name: Chuẩn bị khoá ký (nếu có)
+        if: ${{ inputs.build_android }}
+        env:
+          KS_PASS: ${{ secrets.KLA_KEYSTORE_PASSWORD }}
+          KS_ALIAS: ${{ secrets.KLA_KEY_ALIAS }}
+          KS_KEYPASS: ${{ secrets.KLA_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KLA_KEYSTORE_B64" ]; then
+            echo "$KLA_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/kla.keystore"
+            echo "KLA_KEYSTORE_FILE=$RUNNER_TEMP/kla.keystore" >> "$GITHUB_ENV"
+            echo "KLA_KEYSTORE_PASSWORD=$KS_PASS" >> "$GITHUB_ENV"
+            echo "KLA_KEY_ALIAS=$KS_ALIAS" >> "$GITHUB_ENV"
+            echo "KLA_KEY_PASSWORD=$KS_KEYPASS" >> "$GITHUB_ENV"
+            echo "SIGNED=true" >> "$GITHUB_ENV"
+          else
+            echo "::warning::Chưa có secret KLA_KEYSTORE_B64 → chỉ build APK debug (cài thử được, KHÔNG up Google Play được). Xem README mục 'Tạo khoá ký'."
+            echo "SIGNED=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build APK + AAB
+        if: ${{ inputs.build_android }}
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          if [ "$SIGNED" = "true" ]; then
+            ./gradlew --no-daemon assembleRelease bundleRelease
+          else
+            ./gradlew --no-daemon assembleDebug
+          fi
+
+      - name: Gom file phát hành
+        run: |
+          mkdir -p out
+          cp dist/www-${VERSION}.zip dist/latest.json out/
+          if [ "${{ inputs.build_android }}" = "true" ]; then
+            if [ "$SIGNED" = "true" ]; then
+              cp android/app/build/outputs/apk/release/*.apk "out/ScanContainer3D-${VERSION}.apk"
+              cp android/app/build/outputs/bundle/release/*.aab "out/ScanContainer3D-${VERSION}.aab"
+            else
+              cp android/app/build/outputs/apk/debug/*.apk "out/ScanContainer3D-${VERSION}-debug.apk"
+            fi
+          fi
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ScanContainer3D-${{ env.VERSION }}
+          path: out/*
+
+      - name: Tạo bản phát hành trên GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Scan & Container 3D v${{ env.VERSION }}
+          body: ${{ inputs.notes }}
+          files: out/*
+          make_latest: true
