@@ -1,6 +1,6 @@
 {
-  "version": "1.0.6",
-  "versionCode": 7,
-  "minNativeVersionCode": 5,
+  "version": "1.0.7",
+  "versionCode": 8,
+  "minNativeVersionCode": 8,
   "notes": "Add files via upload"
 }
