@@ -11,6 +11,7 @@ Kèm danh sách file đã sửa trong câu trả lời. Đặt tên có số b�
 - Thư mục `android/` KHÔNG lưu trong repo; được sinh lại mỗi lần build bởi `scripts/setup-android.mjs` (muốn chỉnh native lâu dài thì sửa file này).
 - Phát hành: GitHub → Actions → "Phát hành Android (APK + AAB + OTA)" (nhánh `kho-anan`). Workflow tự tăng phiên bản, commit, gắn tag.
 - Chỉ sửa giao diện web: bỏ tick "Build APK + AAB" để phát hành OTA nhanh (máy phải có bản cài ≥ v1.0.4 mới nhận OTA). Đổi icon/quyền/plugin: tick "native_changes" và build APK mới.
+- Tự động: push thay đổi trong `www/**` lên `main`/`kho-anan` → workflow tự chạy (patch, chỉ OTA, ghi chú = nội dung commit). Commit bump version có `[skip ci]` và dùng GITHUB_TOKEN nên không lặp vô hạn. Build APK/AAB vẫn chạy tay.
 - Chưa có secret khoá ký → chỉ ra APK debug (`...-debug.apk`), không có AAB.
 
 ## Giao diện
