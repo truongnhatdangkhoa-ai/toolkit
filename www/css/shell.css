@@ -30,3 +30,19 @@
   .upd .msg{ flex:1 1 200px; }
   .upd button{ border:1px solid var(--line); background:transparent; color:var(--tx); padding:7px 12px; border-radius:9px; font:inherit; font-size:13px; font-weight:600; cursor:pointer; }
   .upd button.go{ background:var(--pri); border-color:var(--pri); color:var(--priTx); }
+
+  /* ---- trong app Android: ẩn thanh menu để có nhiều chỗ làm việc; chạm nút nhỏ trên cùng để mở lại ----
+     (trên trình duyệt máy tính vẫn hiện thanh như cũ; thêm ?bar=hide vào địa chỉ để thử ẩn thanh) */
+  .bar-handle,.bar-scrim{ display:none; }
+  body.autohide .bar{ position:fixed; z-index:40; left:0; right:0; top:var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+        transform:translateY(calc(-100% - var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))); transition:transform .18s ease; box-shadow:0 8px 24px rgba(0,0,0,.28); }
+  body.autohide.bar-open .bar{ transform:none; }
+  body.autohide .bar-scrim{ position:fixed; inset:0; z-index:39; background:rgba(0,0,0,.18); }
+  body.autohide .bar-scrim:not([hidden]){ display:block; }
+  body.autohide .bar-handle{ display:flex; align-items:flex-start; justify-content:center; position:fixed; z-index:38; left:50%; transform:translateX(-50%);
+        top:var(--safe-area-inset-top, env(safe-area-inset-top, 0px)); width:64px; height:22px; padding:0; border:0; background:transparent; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  body.autohide .bar-handle span{ display:block; width:40px; height:5px; margin-top:4px; border-radius:3px; background:var(--mut); opacity:.55; }
+  body.autohide.bar-open .bar-handle{ display:none; }
+  /* nền vùng thanh trạng thái khớp màu app khi thanh menu ẩn */
+  body.autohide{ background:var(--bg); }
+  @media (prefers-reduced-motion:reduce){ body.autohide .bar{ transition:none; } }

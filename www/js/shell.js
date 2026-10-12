@@ -24,9 +24,19 @@
       },20);
     } else load.style.display='none';
   }
-  document.getElementById('t-scan').onclick=function(){ open('scan'); };
-  document.getElementById('t-c3d').onclick=function(){ open('c3d'); };
-  document.getElementById('theme').onclick=function(){ applyTheme(theme()==='dark'?'light':'dark'); };
+  // ---- ẩn thanh menu trong app Android (điện thoại/máy tính bảng); nút nhỏ ở mép trên để mở lại ----
+  var body=document.body, scrim=document.getElementById('barScrim'), handle=document.getElementById('barHandle');
+  var native=false; try{ native=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()); }catch(e){}
+  if(native||/[?&]bar=hide\b/.test(location.search)) body.classList.add('autohide');
+  function bar(on){
+    body.classList.toggle('bar-open',on); scrim.hidden=!on; handle.setAttribute('aria-expanded',on?'true':'false');
+  }
+  handle.onclick=function(){ bar(true); };
+  scrim.onclick=function(){ bar(false); };
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') bar(false); });
+  document.getElementById('t-scan').onclick=function(){ open('scan'); bar(false); };
+  document.getElementById('t-c3d').onclick=function(){ open('c3d'); bar(false); };
+  document.getElementById('theme').onclick=function(){ applyTheme(theme()==='dark'?'light':'dark'); bar(false); };
   var t0='light'; try{ t0=localStorage.getItem('kla_theme')==='dark'?'dark':'light'; }catch(e){}
   applyTheme(t0);
   open('scan');
