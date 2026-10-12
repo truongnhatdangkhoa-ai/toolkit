@@ -1,6 +1,6 @@
 {
   "name": "scan-container3d",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "Kho Lạnh · Scan tài liệu + Container 3D — đóng gói Android bằng Capacitor",
   "type": "module",
