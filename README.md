@@ -1,4 +1,4 @@
-# Scan tài liệu + Container 3D — Kho Lạnh (Capacitor / Android)
+# ToolKit Manager — Scan tài liệu + Container 3D (Capacitor / Android)
 
 App gồm 2 công cụ chạy hoàn toàn offline trên máy: **Scan tài liệu** (chụp/chọn ảnh hoặc PDF → cắt trang, khử bóng → xuất PDF/JPG)
 và **Container 3D** (xếp hàng vào container, xuất Excel/ảnh 3D). Đóng gói thành APK/AAB bằng **Capacitor 8**.
@@ -40,7 +40,7 @@ npm run serve        # mở http://localhost:8080
    - `native_changes`: tick nếu lần này đổi **icon, quyền, plugin** (xem mục 4)
    - `build_android`: bỏ tick = chỉ phát hành bản cập nhật OTA (nhanh, ~1 phút)
    - `notes`: ghi chú hiện cho người dùng khi cập nhật
-4. Kết quả nằm ở **Releases**: `ScanContainer3D-X.Y.Z.apk`, `ScanContainer3D-X.Y.Z.aab` (up Google Play), `www-X.Y.Z.zip`, `latest.json`.
+4. Kết quả nằm ở **Releases**: `ToolKitManager-X.Y.Z.apk`, `ToolKitManager-X.Y.Z.aab` (up Google Play), `www-X.Y.Z.zip`, `latest.json`.
 
 ## 4. Cập nhật tự động — không cần build lại
 App đọc `releases/latest/download/latest.json`; nếu có bản mới hơn thì tải `www-X.Y.Z.zip` và hỏi

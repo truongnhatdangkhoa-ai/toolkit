@@ -1,4 +1,4 @@
-# Ghi chú cho Claude — dự án Scan & Container 3D (Capacitor / Android)
+# Ghi chú cho Claude — dự án ToolKit Manager (Capacitor / Android)
 
 ## Quy ước giao file (BẮT BUỘC)
 Mỗi lần sửa dự án, luôn gửi **2 file zip**:
@@ -23,3 +23,4 @@ Kèm danh sách file đã sửa trong câu trả lời. Đặt tên có số b�
 - Logo/icon nền TRẮNG: sửa `BG` trong `tools/make_icons.py` rồi chạy `python3 -I tools/make_icons.py .`; màu nền icon/splash nằm ở `resources/android/res/values/ic_launcher_background.xml`. Đổi icon là thay đổi native → tick "native_changes" + build APK mới.
 - Màn hình chính (`#home`) chỉ hiện trong app Android: 2 thẻ chọn công cụ; nút Back của điện thoại: đang ở công cụ → về màn hình chính, đang ở màn hình chính → thoát app (`backButton` trong shell.js). Thanh menu trên cùng không còn dùng trong app (chỉ còn trên web).
 - OTA: GitHub trả 302 sang release-assets.githubusercontent.com, plugin Capgo tải trực tiếp URL github.com bị lỗi "Failed to download" → `updater.js` tự lấy địa chỉ đích (`disableRedirects`) rồi mới `download`. Sửa updater/shell là sửa trong www nhưng máy đang kẹt cần APK mới mới nhận được.
+- Tên app: "ToolKit Manager" (capacitor.config.json `appName`, tiêu đề www/index.html, file APK `ToolKitManager-X.Y.Z.apk/.aab`, release "ToolKit Manager vX"). KHÔNG đổi `appId` (com.kholanh.scancontainer3d) vì đổi sẽ coi như app khác, mất dữ liệu/cập nhật.

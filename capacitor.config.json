@@ -1,6 +1,6 @@
 {
   "appId": "com.kholanh.scancontainer3d",
-  "appName": "Scan & Container 3D",
+  "appName": "ToolKit Manager",
   "webDir": "www",
   "android": {
     "allowMixedContent": false
@@ -9,7 +9,9 @@
     "CapacitorUpdater": {
       "autoUpdate": false,
       "appReadyTimeout": 15000,
-      "resetWhenUpdate": true
+      "resetWhenUpdate": true,
+      "statsUrl": "",
+      "responseTimeout": 60
     }
   }
 }
