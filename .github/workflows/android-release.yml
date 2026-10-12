@@ -138,24 +138,37 @@ jobs:
           cp dist/www-${VERSION}.zip dist/latest.json out/
           if [ "${{ inputs.build_android }}" = "true" ]; then
             if [ "$SIGNED" = "true" ]; then
-              cp android/app/build/outputs/apk/release/*.apk "out/ScanContainer3D-${VERSION}.apk"
-              cp android/app/build/outputs/bundle/release/*.aab "out/ScanContainer3D-${VERSION}.aab"
+              cp android/app/build/outputs/apk/release/*.apk "out/ToolKitManager-${VERSION}.apk"
+              cp android/app/build/outputs/bundle/release/*.aab "out/ToolKitManager-${VERSION}.aab"
             else
-              cp android/app/build/outputs/apk/debug/*.apk "out/ScanContainer3D-${VERSION}-debug.apk"
+              cp android/app/build/outputs/apk/debug/*.apk "out/ToolKitManager-${VERSION}-debug.apk"
             fi
           fi
           ls -la out
 
+      - name: Đưa gói OTA lên nhánh ota (địa chỉ tải trực tiếp, không bị chuyển hướng)
+        continue-on-error: true
+        run: |
+          rm -rf "$RUNNER_TEMP/ota" && mkdir -p "$RUNNER_TEMP/ota"
+          cp dist/www-${VERSION}.zip dist/latest.json "$RUNNER_TEMP/ota/"
+          cd "$RUNNER_TEMP/ota"
+          git init -q -b ota
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -qm "OTA v${VERSION}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" ota
+
       - uses: actions/upload-artifact@v4
         with:
-          name: ScanContainer3D-${{ env.VERSION }}
+          name: ToolKitManager-${{ env.VERSION }}
           path: out/*
 
       - name: Tạo bản phát hành trên GitHub
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.VERSION }}
-          name: Scan & Container 3D v${{ env.VERSION }}
+          name: ToolKit Manager v${{ env.VERSION }}
           body: ${{ github.event_name == 'push' && github.event.head_commit.message || inputs.notes }}
           files: out/*
           make_latest: true
