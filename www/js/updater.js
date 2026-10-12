@@ -34,12 +34,46 @@
   }
   function hide() { box.hidden = true; box.innerHTML = ''; }
 
+
+  // Tải bản mới có hiển thị % và tự dừng nếu bị treo (không có tiến độ trong 30 giây hoặc quá 3 phút)
+  var STALL_MS = 30000, TOTAL_MS = 180000;
+  function downloadBundle(m) {
+    var pct = 0, last = Date.now(), t0 = Date.now(), done = false, lis = null, timer = null;
+    function label() { return 'Đang tải bản <b>v' + m.version + '</b>… ' + pct + '%'; }
+    show(label());
+    function stop() { done = true; clearInterval(timer); if (lis && lis.remove) { try { lis.remove(); } catch (e) {} } }
+    function fail(msg) {
+      stop(); busy = false;
+      show(msg + ' Kiểm tra mạng rồi thử lại.', [
+        { t: 'Thử lại', go: true, f: function () { check(true); } },
+        { t: 'Mở trang tải', f: function () { window.open(cfg.releasesUrl, '_system'); } },
+        { t: 'Đóng', f: hide }]);
+    }
+    return new Promise(function (resolve, reject) {
+      try { var l = U.addListener('download', function (ev) {
+        if (done || !ev) return; var p = Math.round(ev.percent || 0); if (p !== pct) { pct = p; last = Date.now(); show(label()); }
+      }); if (l && l.then) l.then(function (h) { lis = h; if (done && h && h.remove) h.remove(); }); else lis = l; } catch (e) {}
+      timer = setInterval(function () {
+        if (done) return;
+        if (Date.now() - last > STALL_MS) { reject(new Error('Tải bị đứng (không có tiến độ).')); }
+        else if (Date.now() - t0 > TOTAL_MS) { reject(new Error('Tải quá lâu.')); }
+      }, 2000);
+      U.download({ url: m.url, version: m.version }).then(resolve, reject);
+    }).then(function (bundle) {
+      if (done) return; stop(); busy = false;
+      show('Đã tải xong bản <b>v' + m.version + '</b>' + (m.notes ? ' — ' + String(m.notes).replace(/</g, '&lt;') : '') + '.', [
+        { t: 'Cập nhật ngay', go: true, f: function () { U.set(bundle); } },
+        { t: 'Để lần mở sau', f: function () { U.next(bundle).then(hide); } }]);
+      cleanup(bundle);
+    }).catch(function (e) { if (!done) fail('Không tải được bản mới: ' + (e && e.message || e)); });
+  }
+
   var busy = false;
   function check(manual) {
     if (busy) return; busy = true;
     Promise.all([
       localVersion(),
-      H.get({ url: cfg.manifestUrl + '?_=' + Date.now(), headers: { 'Cache-Control': 'no-cache' } }),
+      H.get({ url: cfg.manifestUrl + '?_=' + Date.now(), headers: { 'Cache-Control': 'no-cache' }, connectTimeout: 15000, readTimeout: 20000 }),
       A && A.getInfo ? A.getInfo() : Promise.resolve({ build: '0' })
     ]).then(function (r) {
       var cur = r[0] && r[0].version, m = r[1].data, native = parseInt(r[2].build, 10) || 0;
@@ -52,14 +86,7 @@
           { t: 'Mở trang tải', go: true, f: function () { window.open(cfg.releasesUrl, '_system'); } }, { t: 'Để sau', f: hide }]);
         return;
       }
-      show('Đang tải bản <b>v' + m.version + '</b>…');
-      return U.download({ url: m.url, version: m.version }).then(function (bundle) {
-        busy = false;
-        show('Đã tải xong bản <b>v' + m.version + '</b>' + (m.notes ? ' — ' + String(m.notes).replace(/</g, '&lt;') : '') + '.', [
-          { t: 'Cập nhật ngay', go: true, f: function () { U.set(bundle); } },
-          { t: 'Để lần mở sau', f: function () { U.next(bundle).then(hide); } }]);
-        cleanup(bundle);
-      });
+      return downloadBundle(m, native);
     }).catch(function (e) { busy = false; if (manual) show('Không kiểm tra được cập nhật: ' + (e && e.message || e), [{ t: 'Đóng', f: hide }]); });
   }
   function cleanup(keep) {                                                   // xoá các bản tải về cũ

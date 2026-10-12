@@ -18,3 +18,4 @@ Kèm danh sách file đã sửa trong câu trả lời. Đặt tên có số b�
 - Trong app Android, thanh menu trên cùng (`.bar`) bị ẩn (`body.autohide`); chạm thanh nhỏ ở giữa mép trên để mở, chọn xong tự đóng. Thêm `?bar=hide` vào địa chỉ để thử trên trình duyệt.
 - Chạy thử web: `npm run serve` (http://localhost:8080). Đã kiểm tra bố cục ở 412–1280px: ≥900px chia 2 cột, nhỏ hơn xếp 1 cột.
 - iPad/iOS: APK không chạy được; cần dự án iOS riêng hoặc PWA (chưa làm).
+- OTA: `www/js/updater.js` hiện % tải, tự báo lỗi nếu đứng >30 giây hoặc >3 phút, có nút Thử lại / Mở trang tải. Lưu ý: code updater nằm trong www nên máy cũ chỉ nhận được qua OTA hoặc APK mới → sửa updater thì nên build APK mới.
