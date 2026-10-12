@@ -1,6 +1,6 @@
 {
   "name": "toolkit-manager",
-  "version": "1.0.0",
+  "version": "1.0.14",
   "private": true,
   "description": "ToolKit Manager — Scan tài liệu + Container 3D, đóng gói Android bằng Capacitor",
   "type": "module",
