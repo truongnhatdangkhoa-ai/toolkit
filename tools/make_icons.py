@@ -2,7 +2,7 @@
 Chạy:  python3 -I tools/make_icons.py <proj_dir>"""
 import sys, os
 from PIL import Image, ImageDraw
-P = sys.argv[1]; NAVY = (15, 23, 42, 255)
+P = sys.argv[1]; BG = (255, 255, 255, 255)
 logo = Image.open(os.path.join(P, 'resources/logo-transparent.png')).convert('RGBA')
 RES = os.path.join(P, 'resources/android/res')
 def save(img, rel):
@@ -17,10 +17,10 @@ def mono(side):
 # --- icon Android
 LEG = {'mdpi': 48, 'hdpi': 72, 'xhdpi': 96, 'xxhdpi': 144, 'xxxhdpi': 192}
 for d, px in LEG.items():
-    sq = canvas(px, NAVY); place(sq, int(px * .78))
+    sq = canvas(px, BG); place(sq, int(px * .78))
     m = Image.new('L', (px, px), 0); ImageDraw.Draw(m).rounded_rectangle((0, 0, px - 1, px - 1), radius=int(px * .22), fill=255)
     sq.putalpha(m); save(sq, 'resources/android/res/mipmap-%s/ic_launcher.png' % d)
-    rd = canvas(px, NAVY); place(rd, int(px * .66))
+    rd = canvas(px, BG); place(rd, int(px * .66))
     m = Image.new('L', (px, px), 0); ImageDraw.Draw(m).ellipse((0, 0, px - 1, px - 1), fill=255)
     rd.putalpha(m); save(rd, 'resources/android/res/mipmap-%s/ic_launcher_round.png' % d)
     fg = int(px * 108 / 48)   # lớp adaptive 108dp
@@ -38,8 +38,8 @@ for n in ('ic_launcher', 'ic_launcher_round'):
     p = os.path.join(RES, 'mipmap-anydpi-v26', n + '.xml'); os.makedirs(os.path.dirname(p), exist_ok=True); open(p, 'w').write(ADAPT)
 os.makedirs(os.path.join(RES, 'values'), exist_ok=True)
 open(os.path.join(RES, 'values/ic_launcher_background.xml'), 'w').write(
- '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#0F172A</color>\n</resources>\n')
-# --- splash: nền navy + logo giữa, KHÔNG bị kéo giãn theo tỉ lệ màn hình
+ '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#FFFFFF</color>\n</resources>\n')
+# --- splash: nền trắng + logo giữa, KHÔNG bị kéo giãn theo tỉ lệ màn hình
 save(star(480), 'resources/android/res/drawable-nodpi/splash_logo.png')
 os.makedirs(os.path.join(RES, 'drawable'), exist_ok=True)
 open(os.path.join(RES, 'drawable/splash.xml'), 'w').write('''<?xml version="1.0" encoding="utf-8"?>
@@ -51,6 +51,6 @@ open(os.path.join(RES, 'drawable/splash.xml'), 'w').write('''<?xml version="1.0"
 </layer-list>
 ''')
 # --- ảnh cho Google Play + web
-store = canvas(512, NAVY); place(store, 400); save(store, 'resources/play-store-icon-512.png')
+store = canvas(512, BG); place(store, 400); save(store, 'resources/play-store-icon-512.png')
 save(star(512), 'www/assets/logo.png'); save(star(192), 'www/assets/logo-192.png'); save(star(64), 'www/assets/favicon.png')
 print('ok')

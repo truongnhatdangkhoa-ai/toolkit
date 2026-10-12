@@ -19,3 +19,5 @@ Kèm danh sách file đã sửa trong câu trả lời. Đặt tên có số b�
 - Chạy thử web: `npm run serve` (http://localhost:8080). Đã kiểm tra bố cục ở 412–1280px: ≥900px chia 2 cột, nhỏ hơn xếp 1 cột.
 - iPad/iOS: APK không chạy được; cần dự án iOS riêng hoặc PWA (chưa làm).
 - OTA: `www/js/updater.js` hiện % tải, tự báo lỗi nếu đứng >30 giây hoặc >3 phút, có nút Thử lại / Mở trang tải. Lưu ý: code updater nằm trong www nên máy cũ chỉ nhận được qua OTA hoặc APK mới → sửa updater thì nên build APK mới.
+- `capacitor.config.json`: CapacitorUpdater `statsUrl:""` (không gửi thống kê tới plugin.capgo.app) và `responseTimeout:60`. Là cấu hình native → cần build APK mới mới có tác dụng. Nếu OTA vẫn treo: cài thẳng APK mới nhất từ Releases (APK luôn chứa bản www mới nhất) và xem log bằng chrome://inspect.
+- Logo/icon nền TRẮNG: sửa `BG` trong `tools/make_icons.py` rồi chạy `python3 -I tools/make_icons.py .`; màu nền icon/splash nằm ở `resources/android/res/values/ic_launcher_background.xml`. Đổi icon là thay đổi native → tick "native_changes" + build APK mới.
