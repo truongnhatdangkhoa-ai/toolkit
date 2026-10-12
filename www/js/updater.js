@@ -35,97 +35,90 @@
   function hide() { box.hidden = true; box.innerHTML = ''; }
 
 
-  // ---------- Tải bản mới: thử lần lượt NHIỀU địa chỉ, hiện % và báo rõ nguyên nhân khi lỗi ----------
-  // 1) địa chỉ trực tiếp trên nhánh "ota" (raw.githubusercontent.com — KHÔNG chuyển hướng)
-  // 2) bản phát hành GitHub: lấy địa chỉ đích sau khi chuyển hướng (302) rồi mới tải
-  // 3) bản phát hành GitHub: địa chỉ gốc
-  function resolveRedirect(url) {
-    return H.get({ url: url, headers: { Range: 'bytes=0-0' }, disableRedirects: true, connectTimeout: 15000, readTimeout: 20000 }).then(function (r) {
+  // ---- Tải bản mới: hiện %, tự dừng nếu treo, tự thử lần lượt nhiều địa chỉ, và báo rõ nguyên nhân khi lỗi ----
+  var STALL_MS = 30000, TOTAL_MS = 180000;
+  function esc(t) { return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function resolveRedirect(url) {                                              // GitHub Releases trả 302 → lấy địa chỉ đích (plugin tải lỗi khi gặp chuyển hướng)
+    return H.get({ url: url, disableRedirects: true, headers: { Range: 'bytes=0-0' }, connectTimeout: 15000, readTimeout: 20000 }).then(function (r) {
       var h = r.headers || {}, loc = h.Location || h.location;
       return (r.status >= 300 && r.status < 400 && loc) ? loc : url;
     }).catch(function () { return url; });
   }
-  function hostOf(u) { var m = /^https?:\/\/([^\/]+)/.exec(String(u)); return m ? m[1] : String(u).slice(0, 40); }
-  function errText(e) {
-    if (!e) return 'lỗi không rõ';
-    var t = e.message || e.error || (typeof e === 'string' ? e : '');
-    if (!t) { try { t = JSON.stringify(e); } catch (x) { t = String(e); } }
-    if (e.code) t += ' [' + e.code + ']';
-    return String(t).replace(/Failed to download from: \S+/, 'Plugin tải lỗi').slice(0, 160);
+  function probe(url) {                                                        // kiểm tra nhanh: máy có với tới file không, có đúng là zip không
+    return H.get({ url: url, headers: { Range: 'bytes=0-3' }, responseType: 'blob', connectTimeout: 15000, readTimeout: 20000 }).then(function (r) {
+      var d = typeof r.data === 'string' ? r.data : '';
+      return 'HTTP ' + r.status + (d.indexOf('UEsD') === 0 ? ' · đúng file zip' : ' · KHÔNG phải file zip');
+    }).catch(function (e) { return 'không truy cập được (' + (e && e.message || e) + ')'; });
   }
-  function probe(url) {                                                      // kiểm tra mạng có tải được địa chỉ đó không (độc lập với plugin)
-    return H.get({ url: url, headers: { Range: 'bytes=0-0' }, connectTimeout: 15000, readTimeout: 20000, responseType: 'arraybuffer' })
-      .then(function (r) { return 'mạng OK (HTTP ' + r.status + ')'; })
-      .catch(function (e) { return 'mạng lỗi: ' + errText(e); });
-  }
-  function purge(version) {                                                  // xoá bản tải dở của chính phiên bản này (tránh kẹt từ lần lỗi trước)
+  function dropStale(keepId) {                                                 // xoá bản tải dở/lỗi trước khi thử lại (tránh tải tiếp trên file hỏng)
     return U.list().then(function (r) {
-      return Promise.all((r.bundles || []).filter(function (b) { return b.version === version && b.status !== 'success'; })
-        .map(function (b) { return U.delete({ id: b.id }).catch(function () {}); }));
+      return Promise.all((r.bundles || []).map(function (b) {
+        if (b.id === keepId || b.status === 'success' || b.id === 'builtin') return null;
+        return U.delete({ id: b.id }).catch(function () {});
+      }));
     }).catch(function () {});
   }
-  var STALL_MS = 40000, TOTAL_MS = 240000;
-  function downloadBundle(m) {
-    var st = { pct: 0, last: Date.now() }, lis = null, urls = [], errs = [];
-    (m.mirrors || []).forEach(function (u) { if (u && urls.indexOf(u) < 0) urls.push(u); });
-    if (urls.indexOf(m.url) < 0) urls.push(m.url);
-    function label(extra) { return 'Đang tải bản <b>v' + m.version + '</b>… ' + st.pct + '%' + (extra ? ' <small>' + extra + '</small>' : ''); }
-    show(label());
-    try {
-      var l = U.addListener('download', function (ev) {
-        if (!ev) return; var p = Math.round(ev.percent || 0); st.last = Date.now(); if (p !== st.pct) { st.pct = p; show(label()); }
-      });
-      if (l && l.then) l.then(function (h) { lis = h; }); else lis = l;
-    } catch (e) {}
-    function unlisten() { if (lis && lis.remove) { try { lis.remove(); } catch (e) {} } }
+  function shortUrl(u) { try { return String(u).replace(/^https?:\/\//, '').split('?')[0].slice(0, 70); } catch (e) { return ''; } }
 
-    function one(url) {                                                      // 1 lần tải, có canh treo
+  function downloadBundle(m) {
+    var pct = 0, last = Date.now(), t0 = Date.now(), done = false, lis = null, timer = null, rejectNow = null;
+    function label(extra) { return 'Đang tải bản <b>v' + esc(m.version) + '</b>… ' + pct + '%' + (extra ? '<br><small>' + extra + '</small>' : ''); }
+    show(label());
+    function stop() { done = true; clearInterval(timer); if (lis && lis.remove) { try { lis.remove(); } catch (e) {} } }
+    function fail(msg, diag) {
+      stop(); busy = false;
+      try { console.log('[OTA] ' + msg + ' | ' + (diag || '')); } catch (e) {}
+      show(esc(msg) + (diag ? '<br><small>' + diag + '</small>' : '') + '<br>Kiểm tra mạng rồi thử lại.', [
+        { t: 'Thử lại', go: true, f: function () { check(true); } },
+        { t: 'Mở trang tải', f: function () { window.open(cfg.releasesUrl, '_system'); } },
+        { t: 'Đóng', f: hide }]);
+    }
+    try { var l = U.addListener('download', function (ev) {
+      if (done || !ev) return; var p = Math.round(ev.percent || 0); if (p !== pct) { pct = p; last = Date.now(); show(label()); }
+    }); if (l && l.then) l.then(function (h) { lis = h; if (done && h && h.remove) h.remove(); }); else lis = l; } catch (e) {}
+    timer = setInterval(function () {
+      if (done || !rejectNow) return;
+      if (Date.now() - last > STALL_MS) rejectNow(new Error('Tải bị đứng (không có tiến độ).'));
+      else if (Date.now() - t0 > TOTAL_MS) rejectNow(new Error('Tải quá lâu.'));
+    }, 2000);
+
+    function once(url) {                                                       // 1 lần tải bằng plugin, có canh treo
+      last = Date.now(); t0 = Date.now(); pct = 0;
       return new Promise(function (resolve, reject) {
-        var t0 = Date.now(), fin = false; st.last = Date.now();
-        var tm = setInterval(function () {
-          if (fin) return;
-          if (Date.now() - st.last > STALL_MS) end(new Error('đứng, không có tiến độ'));
-          else if (Date.now() - t0 > TOTAL_MS) end(new Error('quá lâu'));
-        }, 2000);
-        function end(err, val) { if (fin) return; fin = true; clearInterval(tm); err ? reject(err) : resolve(val); }
-        U.download({ url: url, version: m.version }).then(function (b) { end(null, b); }, function (e) { end(e); });
+        rejectNow = reject;
+        U.download({ url: url, version: m.version }).then(resolve, reject);
       });
     }
-    function attempt(i) {                                                    // thử địa chỉ thứ i; hết địa chỉ → báo lỗi
-      if (i >= urls.length) return Promise.reject(new Error('hết địa chỉ để thử'));
-      var u = urls[i];
-      return purge(m.version).then(function () {
-        return /github\.com\//.test(u) ? resolveRedirect(u) : u;
-      }).then(function (finalUrl) {
-        st.pct = 0; show(label(hostOf(finalUrl)));
-        return one(finalUrl).catch(function (e1) {
-          errs.push(hostOf(finalUrl) + ': ' + errText(e1));
-          if (finalUrl === u) throw e1;
-          return purge(m.version).then(function () { return one(u); });     // thử lại bằng địa chỉ gốc
+    // Danh sách địa chỉ thử lần lượt: địa chỉ chính (nhánh ota — tải thẳng) → địa chỉ đích sau chuyển hướng → địa chỉ dự phòng (GitHub Releases)
+    var seen = {}, urls = [];
+    function add(u) { if (u && !seen[u]) { seen[u] = 1; urls.push(u); } }
+    add(m.url);
+    return resolveRedirect(m.url).then(function (u) { add(u); return m.fallbackUrl ? resolveRedirect(m.fallbackUrl) : null; })
+      .then(function (u) { add(m.fallbackUrl); add(u); })
+      .then(function () {
+        var errs = [];
+        function next(i) {
+          if (i >= urls.length) return Promise.reject(errs);
+          if (i > 0) show(label('Đang thử đường dẫn dự phòng (' + i + '/' + (urls.length - 1) + ')…'));
+          return dropStale().then(function () { return once(urls[i]); }).catch(function (e) {
+            errs.push((e && e.message || e) + ' @ ' + shortUrl(urls[i])); return next(i + 1);
+          });
+        }
+        return next(0);
+      }).then(function (bundle) {
+        if (done) return; stop(); busy = false;
+        show('Đã tải xong bản <b>v' + esc(m.version) + '</b>' + (m.notes ? ' — ' + esc(m.notes) : '') + '.', [
+          { t: 'Cập nhật ngay', go: true, f: function () { U.set(bundle); } },
+          { t: 'Để lần mở sau', f: function () { U.next(bundle).then(hide); } }]);
+        cleanup(bundle);
+      }).catch(function (errs) {
+        if (done) return;
+        var first = Array.isArray(errs) ? errs[0] : errs;
+        probe(m.url).then(function (p) {
+          fail('Không tải được bản mới: ' + String(first && first.message || first || 'lỗi không rõ').split(' @ ')[0].replace(/https?:\/\/\S+/g, '').replace(/:\s*$/, ''),
+            'Chẩn đoán: ' + esc(p) + ' · đã thử ' + urls.length + ' địa chỉ · v' + esc(m.version));
         });
-      }).catch(function (e) {
-        if (!errs.length || errs[errs.length - 1].indexOf(errText(e)) < 0) errs.push(hostOf(u) + ': ' + errText(e));
-        return attempt(i + 1);
       });
-    }
-    function fail() {
-      unlisten(); busy = false;
-      probe(urls[0]).then(function (pr) {
-        var det = errs.slice(-3).map(function (x) { return x.replace(/</g, '&lt;'); }).join('<br>');
-        show('Không tải được bản mới <b>v' + m.version + '</b>.<br><small>' + det + '<br>' + hostOf(urls[0]) + ' → ' + pr + '</small>' +
-          '<br><small>Nếu lỗi lặp lại: bấm “Mở trang tải” và cài APK mới nhất (APK luôn chứa bản mới).</small>', [
-          { t: 'Thử lại', go: true, f: function () { check(true); } },
-          { t: 'Mở trang tải', f: function () { window.open(cfg.releasesUrl, '_system'); } },
-          { t: 'Đóng', f: hide }]);
-      });
-    }
-    return attempt(0).then(function (bundle) {
-      unlisten(); busy = false;
-      show('Đã tải xong bản <b>v' + m.version + '</b>' + (m.notes ? ' — ' + String(m.notes).replace(/</g, '&lt;') : '') + '.', [
-        { t: 'Cập nhật ngay', go: true, f: function () { U.set(bundle); } },
-        { t: 'Để lần mở sau', f: function () { U.next(bundle).then(hide); } }]);
-      cleanup(bundle);
-    }, fail);
   }
 
   var busy = false;

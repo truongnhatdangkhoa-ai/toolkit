@@ -85,3 +85,37 @@ html[data-theme="light"] .c3d-tr{ background:rgba(255,255,255,.9); }
 
 /* sửa: nút chế độ xem đang chọn (Tổng thể) bị chữ trắng trên nền trắng ở giao diện Sáng */
 html[data-theme="light"] .c3d-chip.on{ background:var(--theme-accent); border-color:var(--theme-accent); color:#fff; }
+
+/* ===== v1.0.12: MÀN HÌNH DỌC / ĐIỆN THOẠI — chặn tràn ngang (form "Thêm mặt hàng" bị kéo dài sang 1 bên) =====
+   Gốc lỗi: cột lưới 1fr = minmax(auto,1fr) nên bị phần tử rộng nhất đẩy ra (~1300px) thay vì co theo màn hình. */
+@media (max-width:900px){
+  html,body{ max-width:100%; overflow-x:hidden; }
+  .c3d-page{ width:100%; max-width:100%; padding:8px 10px 14px; }
+  .c3d-main{ grid-template-columns:minmax(0,1fr); overflow-x:hidden; }
+  .c3d-side,.c3d-stage,.c3d-card,.c3d-rep,.c3d-sku,.c3d-vp,.c3d-report{ min-width:0; max-width:100%; }
+  .c3d-head{ min-width:0; } .c3d-actions{ min-width:0; max-width:100%; }
+  .c3d-tw{ max-width:100%; overflow-x:auto; }
+}
+@media (max-width:600px){
+  .c3d-grid,.c3d-grid.g4{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .c3d-grid.g2{ grid-template-columns:minmax(0,1fr); }
+  .c3d-f.span2,.c3d-f.span3,.c3d-f.span4{ grid-column:1 / -1; }
+  .c3d-card{ padding:12px 11px; }
+  .c3d-card h3{ flex-wrap:wrap; }
+  .c3d-sku-h{ flex-wrap:wrap; row-gap:6px; }
+  .c3d-sku-h .sp{ flex:1 1 0; min-width:0; }
+  .c3d-flags{ gap:6px 14px; }
+  .c3d-btns .c3d-btn,.c3d-sku-h .c3d-btn{ white-space:normal; }
+  .c3d-page input[type=text],.c3d-page input[type=number],.c3d-page select{ font-size:16px; }   /* tránh Android tự phóng to khi chạm ô nhập */
+  .c3d-f .u{ white-space:normal; }
+  .c3d-qb{ position:fixed; left:12px; right:12px; top:auto; bottom:16px; width:auto; transform:none; }
+  .c3d-grid .c3d-f:nth-child(3n) .c3d-qb{ left:12px; right:12px; }
+  .c3d-top{ left:6px; right:6px; top:6px; }
+  .c3d-tr{ justify-content:flex-start; }
+  .c3d-toast{ max-width:92vw; }
+  .c3d-vp{ flex-direction:column; height:auto; }
+  .c3d-vpm{ flex:none; height:clamp(340px,56vh,520px); }
+  .c3d-layers{ width:auto; max-height:240px; border-left:0; border-top:1px solid var(--theme-border); }
+  .c3d-seq{ flex-wrap:wrap; gap:6px; }
+  .c3d-seq .lab{ white-space:normal; }
+}

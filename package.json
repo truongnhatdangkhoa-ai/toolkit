@@ -1,8 +1,8 @@
 {
   "name": "toolkit-manager",
-  "version": "1.0.13",
+  "version": "1.0.0",
   "private": true,
-  "description": "ToolKit Manager (Kho Lạnh) — Scan tài liệu + Container 3D, đóng gói Android bằng Capacitor",
+  "description": "ToolKit Manager — Scan tài liệu + Container 3D, đóng gói Android bằng Capacitor",
   "type": "module",
   "engines": {
     "node": ">=22"

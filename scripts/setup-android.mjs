@@ -72,6 +72,17 @@ if (!m.includes('android.permission.CAMERA')) {
   else warn('AndroidManifest.xml bất thường — chưa thêm quyền CAMERA');
 }
 
+// 4c) tên hiển thị của app (nhãn dưới icon + tên Activity) — luôn là "ToolKit Manager", không phụ thuộc bản cũ
+{
+  const NAME = rd('capacitor.config.json').appName || 'ToolKit Manager';
+  const sf = path.join(RES, 'values/strings.xml');
+  if (exists(sf)) {
+    let x = fs.readFileSync(sf, 'utf8'); const esc = NAME.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    x = x.replace(/(<string name="app_name">)[^<]*(<\/string>)/, `$1${esc}$2`).replace(/(<string name="title_activity_main">)[^<]*(<\/string>)/, `$1${esc}$2`);
+    fs.writeFileSync(sf, x);
+  } else warn('Không thấy res/values/strings.xml — chưa đặt tên app');
+}
+
 // 5) đồng bộ web -> android
 sh('npx cap sync android');
 console.log(`Android sẵn sàng: ${v.version} (versionCode ${v.versionCode})`);
