@@ -17,6 +17,10 @@ const exists = (p) => fs.existsSync(p);
 if (!exists(A)) sh('npx cap add android');
 
 // 2) icon + splash
+if (!exists(path.join(ROOT, 'resources/android/res/mipmap-xxxhdpi/ic_launcher.png'))) {
+  console.error('✗ Thiếu thư mục resources/android/res (icon + splash). Hãy chắc chắn đã đưa lên repo — nếu dùng git, kiểm tra .gitignore không chặn nó (dùng "/android/" chứ không phải "android/").');
+  process.exit(1);
+}
 function copyDir(src, dst) { for (const e of fs.readdirSync(src, { withFileTypes: true })) {
   const s = path.join(src, e.name), d = path.join(dst, e.name);
   if (e.isDirectory()) { fs.mkdirSync(d, { recursive: true }); copyDir(s, d); } else fs.copyFileSync(s, d); } }
