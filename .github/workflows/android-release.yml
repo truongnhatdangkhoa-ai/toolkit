@@ -1,7 +1,14 @@
 name: Phát hành Android (APK + AAB + OTA)
 
 # Chạy tay: GitHub → tab Actions → "Phát hành Android" → Run workflow.
+#
+# TỰ ĐỘNG: mỗi lần đẩy (push) thay đổi trong thư mục www/ lên nhánh main hoặc kho-anan,
+# workflow tự chạy ở chế độ patch + chỉ phát hành bản cập nhật OTA (không build APK).
+# Muốn build APK/AAB hoặc đổi icon/quyền/plugin → vẫn chạy tay như trên.
 on:
+  push:
+    branches: [main, kho-anan]
+    paths: ['www/**']
   workflow_dispatch:
     inputs:
       bump:
@@ -47,9 +54,9 @@ jobs:
       - name: Tăng phiên bản
         id: ver
         env:
-          BUMP: ${{ inputs.bump }}
+          BUMP: ${{ inputs.bump || 'patch' }}
           NATIVE: ${{ inputs.native_changes }}
-          NOTES: ${{ inputs.notes }}
+          NOTES: ${{ github.event_name == 'push' && github.event.head_commit.message || inputs.notes }}
         run: |
           ARGS="$BUMP"
           if [ "$NATIVE" = "true" ]; then ARGS="$ARGS --native"; fi
@@ -62,7 +69,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add version.json package.json www/version.json
-          git commit -m "chore(release): v${VERSION} (versionCode ${VCODE})"
+          git commit -m "chore(release): v${VERSION} (versionCode ${VCODE}) [skip ci]"
           git tag "v${VERSION}"
           git push origin "HEAD:${GITHUB_REF_NAME}" "v${VERSION}"
 
@@ -149,6 +156,6 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           name: Scan & Container 3D v${{ env.VERSION }}
-          body: ${{ inputs.notes }}
+          body: ${{ github.event_name == 'push' && github.event.head_commit.message || inputs.notes }}
           files: out/*
           make_latest: true
