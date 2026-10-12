@@ -51,6 +51,8 @@ App đọc `releases/latest/download/latest.json`; nếu có bản mới hơn th
 | Sửa chức năng, giao diện, CSS/JS, logo hiển thị trong app | Chỉ cần chạy workflow (`build_android` bỏ tick nếu muốn nhanh) — người dùng nhận qua OTA |
 | **Icon ngoài màn hình chính, splash, quyền, thêm plugin native** | Tick `native_changes` + build APK/AAB mới. Máy dùng bản cũ sẽ thấy thông báo "cần cài lại ứng dụng" |
 
+Gói OTA còn được đẩy lên nhánh `ota` (tải trực tiếp, không chuyển hướng) để dự phòng khi GitHub Releases tải lỗi.
+
 Giới hạn của Android: icon launcher nằm trong APK nên không thể đổi bằng OTA. Bản OTA bị lỗi/treo > 15 giây sẽ tự lùi về bản trước.
 
 ## 5. Phiên bản

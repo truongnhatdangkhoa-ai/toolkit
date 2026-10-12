@@ -6,7 +6,7 @@ KS=kla-release.keystore
 read -rp  "Alias khoá (vd: kla): " ALIAS; ALIAS=${ALIAS:-kla}
 read -rsp "Mật khẩu keystore (>= 6 ký tự): " PASS; echo
 keytool -genkeypair -v -keystore "$KS" -alias "$ALIAS" -keyalg RSA -keysize 2048 -validity 10000 \
-        -storepass "$PASS" -keypass "$PASS" -dname "CN=Kho Lanh, O=Kho Lanh, C=VN"
+        -storepass "$PASS" -keypass "$PASS" -dname "CN=ToolKit Manager, O=ToolKit Manager, C=VN"
 base64 -w0 "$KS" > keystore.b64 2>/dev/null || base64 "$KS" | tr -d '\n' > keystore.b64
 echo
 echo "Đã tạo: $KS (cất kỹ, KHÔNG đưa lên GitHub) và keystore.b64"

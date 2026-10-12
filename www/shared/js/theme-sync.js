@@ -77,14 +77,14 @@
   }
 
   function apply(theme) {
-    var t = (theme === 'light') ? 'light' : 'dark';
+    var t = 'light'; // ToolKit Manager: chỉ dùng giao diện Sáng
     document.documentElement.setAttribute('data-theme', t);
     return t;
   }
 
-  // Kho Lạnh 1.0: trang module nằm trong khung (iframe) → ẩn khối logo/tên riêng của trang (đã có ở thanh trên của khung)
+  // ToolKit Manager: trang module nằm trong khung (iframe) → ẩn khối logo/tên riêng của trang (đã có ở thanh trên của khung)
   try { if (global.top !== global) document.documentElement.classList.add('kl-embedded'); } catch (e) { document.documentElement.classList.add('kl-embedded'); }
-  var initialTheme = getThemeFromUrl() || getStoredTheme() || 'light'; // Kho Lạnh 1.0: mặc định giao diện Sáng
+  var initialTheme = 'light'; // ToolKit Manager: cố định giao diện Sáng
   apply(initialTheme);
   setStoredTheme(initialTheme);
 
@@ -106,7 +106,7 @@
     var data = event.data;
     if (!data || data.type !== 'kla-theme-change') return;
     apply(data.theme);
-    setStoredTheme(data.theme === 'light' ? 'light' : 'dark');
+    setStoredTheme('light');
   });
 
   // ==========================================================================

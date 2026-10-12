@@ -510,7 +510,7 @@
           if (go) {
             var android = global.Capacitor.getPlatform && global.Capacitor.getPlatform() === 'android';
             var opt = android ? NS.openAndroid({ option: 'application_details' }) : NS.openIOS({ option: 'app' });
-            if (opt && opt.catch) opt.catch(function () { toast('Không mở được Cài đặt. Vào Cài đặt › Ứng dụng › Kho Lạnh An An › Quyền.', true); });
+            if (opt && opt.catch) opt.catch(function () { toast('Không mở được Cài đặt. Vào Cài đặt › Ứng dụng › ToolKit Manager › Quyền.', true); });
             return;
           }
         }

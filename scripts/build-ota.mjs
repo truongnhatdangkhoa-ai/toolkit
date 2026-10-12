@@ -31,6 +31,7 @@ const zipName = `www-${v.version}.zip`; fs.writeFileSync(path.join(DIST, zipName
 const manifest = {
   version: v.version, versionCode: v.versionCode, minNativeVersionCode: v.minNativeVersionCode || 1, notes: v.notes || '',
   url: `https://github.com/${repo}/releases/download/v${v.version}/${zipName}`,
+  mirrors: [`https://raw.githubusercontent.com/${repo}/ota/${zipName}`],   // địa chỉ trực tiếp (không chuyển hướng) trên nhánh ota
   sha256: crypto.createHash('sha256').update(zip).digest('hex'), builtAt: new Date().toISOString()
 };
 fs.writeFileSync(path.join(DIST, 'latest.json'), JSON.stringify(manifest, null, 2) + '\n');

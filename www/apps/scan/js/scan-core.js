@@ -542,7 +542,7 @@
       }
       return next();
     }).then(function (doc) {
-      if (opt.title) try { doc.setProperties({ title: opt.title, creator: 'Kho Lạnh — Scan tài liệu' }); } catch (e) {}
+      if (opt.title) try { doc.setProperties({ title: opt.title, creator: 'ToolKit Manager — Scan tài liệu' }); } catch (e) {}
       return doc.output('blob');
     });
   }

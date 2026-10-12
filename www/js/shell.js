@@ -1,13 +1,9 @@
 (function(){
   'use strict';
   var stage=document.getElementById('stage'), load=document.getElementById('load'), frames={}, cur='';
-  function theme(){ return document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light'; }
-  function applyTheme(t){
-    document.documentElement.setAttribute('data-theme',t);
-    try{ localStorage.setItem('kla_theme',t); }catch(e){}
-    var tl='Giao diện: '+(t==='dark'?'Tối':'Sáng'); document.getElementById('theme').textContent=tl; document.getElementById('theme2').textContent=tl;
-    Object.keys(frames).forEach(function(k){ try{ frames[k].contentWindow.postMessage({type:'kla-theme-change',theme:t},'*'); }catch(e){} });
-  }
+  // Chỉ dùng giao diện SÁNG (đã bỏ chế độ tối)
+  document.documentElement.setAttribute('data-theme','light');
+  try{ localStorage.setItem('kla_theme','light'); }catch(e){}
   var home=document.getElementById('home');
   function open(name){
     if(cur===name) return; cur=name; home.hidden=true;
@@ -37,10 +33,6 @@
   document.addEventListener('keydown',function(e){ if(e.key==='Escape') bar(false); });
   document.getElementById('t-scan').onclick=function(){ open('scan'); bar(false); };
   document.getElementById('t-c3d').onclick=function(){ open('c3d'); bar(false); };
-  document.getElementById('theme').onclick=function(){ applyTheme(theme()==='dark'?'light':'dark'); bar(false); };
-  var t0='light'; try{ t0=localStorage.getItem('kla_theme')==='dark'?'dark':'light'; }catch(e){}
-  applyTheme(t0);
-  document.getElementById('theme2').onclick=function(){ applyTheme(theme()==='dark'?'light':'dark'); };
   document.getElementById('h-scan').onclick=function(){ open('scan'); pushMod(); };
   document.getElementById('h-c3d').onclick=function(){ open('c3d'); pushMod(); };
   function goHome(){
