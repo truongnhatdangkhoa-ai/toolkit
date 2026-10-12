@@ -11,7 +11,7 @@
   function localVersion() {
     return fetch('version.json?_=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).catch(function () { return null; });
   }
-  localVersion().then(function (v) { if (v && verEl) verEl.textContent = 'v' + v.version; });
+  localVersion().then(function (v) { if (v) { var t = 'v' + v.version; if (verEl) verEl.textContent = t; var v2 = document.getElementById('ver2'); if (v2) v2.textContent = t; } });
 
   if (!C || !C.isNativePlatform || !C.isNativePlatform()) return;           // chạy trên web: bỏ qua
   var P = C.Plugins || {}, U = P.CapacitorUpdater, H = P.CapacitorHttp, A = P.App;
@@ -36,6 +36,12 @@
 
 
   // Tải bản mới có hiển thị % và tự dừng nếu bị treo (không có tiến độ trong 30 giây hoặc quá 3 phút)
+  function resolveRedirect(url) {
+    return H.get({ url: url, disableRedirects: true, connectTimeout: 15000, readTimeout: 20000 }).then(function (r) {
+      var h = r.headers || {}, loc = h.Location || h.location;
+      return (r.status >= 300 && r.status < 400 && loc) ? loc : url;
+    }).catch(function () { return url; });
+  }
   var STALL_MS = 30000, TOTAL_MS = 180000;
   function downloadBundle(m) {
     var pct = 0, last = Date.now(), t0 = Date.now(), done = false, lis = null, timer = null;
@@ -58,7 +64,13 @@
         if (Date.now() - last > STALL_MS) { reject(new Error('Tải bị đứng (không có tiến độ).')); }
         else if (Date.now() - t0 > TOTAL_MS) { reject(new Error('Tải quá lâu.')); }
       }, 2000);
-      U.download({ url: m.url, version: m.version }).then(resolve, reject);
+      // GitHub trả 302 sang máy chủ khác; plugin tải lỗi khi gặp chuyển hướng → tự lấy địa chỉ đích rồi mới tải
+      resolveRedirect(m.url).then(function (finalUrl) {
+        return U.download({ url: finalUrl, version: m.version }).catch(function (e1) {
+          if (finalUrl === m.url) throw e1;
+          return U.download({ url: m.url, version: m.version });          // thử lại bằng địa chỉ gốc
+        });
+      }).then(resolve, reject);
     }).then(function (bundle) {
       if (done) return; stop(); busy = false;
       show('Đã tải xong bản <b>v' + m.version + '</b>' + (m.notes ? ' — ' + String(m.notes).replace(/</g, '&lt;') : '') + '.', [
