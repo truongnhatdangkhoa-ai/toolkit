@@ -1,0 +1,10 @@
+{
+  "version": "1.0.16",
+  "versionCode": 17,
+  "minNativeVersionCode": 14,
+  "notes": "Add files via upload",
+  "url": "https://raw.githubusercontent.com/truongnhatdangkhoa-ai/toolkit/ota/www-1.0.16.zip",
+  "fallbackUrl": "https://github.com/truongnhatdangkhoa-ai/toolkit/releases/download/v1.0.16/www-1.0.16.zip",
+  "sha256": "5d7ea7c522e779b2d6d692b7c49c42519693a47c6a0b5373ac2b610d44a5b676",
+  "builtAt": "2026-10-13T01:25:31.616Z"
+}
