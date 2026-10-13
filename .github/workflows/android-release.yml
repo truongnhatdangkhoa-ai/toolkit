@@ -3,7 +3,7 @@ name: Phát hành Android (APK + AAB + OTA)
 # Chạy tay: GitHub → tab Actions → "Phát hành Android" → Run workflow.
 #
 # TỰ ĐỘNG: mỗi lần đẩy (push) thay đổi trong thư mục www/ lên nhánh main hoặc kho-anan,
-# workflow tự chạy ở chế độ patch + chỉ phát hành bản cập nhật OTA (không build APK).
+# workflow tự chạy ở chế độ patch, build APK (ký bằng khoá debug cố định trong repo) + phát hành OTA.
 # Muốn build APK/AAB hoặc đổi icon/quyền/plugin → vẫn chạy tay như trên.
 on:
   push:
@@ -42,6 +42,8 @@ jobs:
     timeout-minutes: 60
     env:
       KLA_KEYSTORE_B64: ${{ secrets.KLA_KEYSTORE_B64 }}
+      # Mỗi lần phát hành đều build APK: push www/** (tự động) luôn build; chạy tay thì theo ô "build_android".
+      BUILD_APK: ${{ github.event_name == 'push' || inputs.build_android }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -77,33 +79,52 @@ jobs:
         run: sed -i "s#__GITHUB_REPOSITORY__#${GITHUB_REPOSITORY}#g" www/js/update-config.js
 
       - name: Đóng gói bản cập nhật OTA
+        env:
+          OTA_DIRECT: '1'   # latest.json trỏ tới nhánh `ota` (tải thẳng, không bị GitHub chuyển hướng 302)
         run: node scripts/build-ota.mjs
 
+      - name: Đăng bản OTA lên nhánh `ota` (địa chỉ tải không chuyển hướng)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          D="$RUNNER_TEMP/ota"; rm -rf "$D"; mkdir -p "$D"
+          cp "dist/www-${VERSION}.zip" dist/latest.json "$D/"
+          cd "$D"
+          git init -q -b ota
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "OTA v${VERSION} [skip ci]"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push -f origin ota
+          echo "OTA: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/ota/www-${VERSION}.zip"
+
       - uses: actions/setup-java@v5
-        if: ${{ inputs.build_android }}
+        if: ${{ env.BUILD_APK == 'true' }}
         with:
           distribution: temurin
           java-version: 21
 
       - uses: android-actions/setup-android@v3
-        if: ${{ inputs.build_android }}
+        if: ${{ env.BUILD_APK == 'true' }}
         with:
           packages: 'platforms;android-36 build-tools;36.0.0'
 
       - uses: gradle/actions/setup-gradle@v4
-        if: ${{ inputs.build_android }}
+        if: ${{ env.BUILD_APK == 'true' }}
 
       - name: Cài thư viện
-        if: ${{ inputs.build_android }}
+        if: ${{ env.BUILD_APK == 'true' }}
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
       - name: Dựng dự án Android (icon, logo, version, quyền)
-        if: ${{ inputs.build_android }}
+        if: ${{ env.BUILD_APK == 'true' }}
         run: node scripts/setup-android.mjs
 
       - name: Chuẩn bị khoá ký (nếu có)
-        if: ${{ inputs.build_android }}
+        if: ${{ env.BUILD_APK == 'true' }}
         env:
           KS_PASS: ${{ secrets.KLA_KEYSTORE_PASSWORD }}
           KS_ALIAS: ${{ secrets.KLA_KEY_ALIAS }}
@@ -117,12 +138,12 @@ jobs:
             echo "KLA_KEY_PASSWORD=$KS_KEYPASS" >> "$GITHUB_ENV"
             echo "SIGNED=true" >> "$GITHUB_ENV"
           else
-            echo "::warning::Chưa có secret KLA_KEYSTORE_B64 → chỉ build APK debug (cài thử được, KHÔNG up Google Play được). Xem README mục 'Tạo khoá ký'."
+            echo "::warning::Chưa có secret KLA_KEYSTORE_B64 → build APK debug ký bằng khoá cố định trong repo (cài đè được, KHÔNG up Google Play được). Xem README mục 'Tạo khoá ký'."
             echo "SIGNED=false" >> "$GITHUB_ENV"
           fi
 
       - name: Build APK + AAB
-        if: ${{ inputs.build_android }}
+        if: ${{ env.BUILD_APK == 'true' }}
         working-directory: android
         run: |
           chmod +x gradlew
@@ -136,7 +157,7 @@ jobs:
         run: |
           mkdir -p out
           cp dist/www-${VERSION}.zip dist/latest.json out/
-          if [ "${{ inputs.build_android }}" = "true" ]; then
+          if [ "$BUILD_APK" = "true" ]; then
             if [ "$SIGNED" = "true" ]; then
               cp android/app/build/outputs/apk/release/*.apk "out/ToolKitManager-${VERSION}.apk"
               cp android/app/build/outputs/bundle/release/*.aab "out/ToolKitManager-${VERSION}.aab"
@@ -145,19 +166,6 @@ jobs:
             fi
           fi
           ls -la out
-
-      - name: Đưa gói OTA lên nhánh ota (địa chỉ tải trực tiếp, không bị chuyển hướng)
-        continue-on-error: true
-        run: |
-          rm -rf "$RUNNER_TEMP/ota" && mkdir -p "$RUNNER_TEMP/ota"
-          cp dist/www-${VERSION}.zip dist/latest.json "$RUNNER_TEMP/ota/"
-          cd "$RUNNER_TEMP/ota"
-          git init -q -b ota
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -qm "OTA v${VERSION}"
-          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" ota
 
       - uses: actions/upload-artifact@v4
         with:
