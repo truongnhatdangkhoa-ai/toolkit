@@ -44,8 +44,8 @@ if (!new RegExp(`versionCode\\s*=?\\s*${v.versionCode}\\b`).test(g) || !g.includ
 const MARK = '// >>> KL signing';
 if (!g.includes(MARK)) g += `\n${MARK}\napply from: 'signing.gradle'\n// <<< KL signing\n`;
 fs.writeFileSync(gradle, g);
-const DEBUG_KS = path.join(ROOT, 'resources/android/kl-debug.keystore').replace(/\\/g, '/');
-if (!exists(DEBUG_KS)) { console.error('✗ Thiếu resources/android/kl-debug.keystore (khoá ký bản debug cố định). Hãy đưa file này lên repo.'); process.exit(1); }
+const DEBUG_KS = path.join(ROOT, 'resources/android/kl-debug.p12').replace(/\\/g, '/');
+if (!exists(DEBUG_KS)) { console.error('✗ Thiếu resources/android/kl-debug.p12 (khoá ký bản debug cố định). Hãy đưa file này lên repo.'); process.exit(1); }
 fs.writeFileSync(path.join(A, 'app/signing.gradle'), `// Sinh bởi scripts/setup-android.mjs — ký bản release nếu có keystore (biến môi trường do CI đặt).
 def ksFile = System.getenv("KLA_KEYSTORE_FILE")
 if (ksFile && new File(ksFile).exists()) {
@@ -67,6 +67,7 @@ if (ksFile && new File(ksFile).exists()) {
         signingConfigs {
             klaDebug {
                 storeFile new File("${DEBUG_KS}")
+                storeType "pkcs12"
                 storePassword "android"
                 keyAlias "kldebug"
                 keyPassword "android"
